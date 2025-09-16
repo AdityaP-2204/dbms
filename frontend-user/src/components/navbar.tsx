@@ -21,6 +21,9 @@ export default function Navbar() {
           <Link to="/signin" className="cursor-pointer hover:text-indigo-600 transition">
             Sign In
           </Link>
+          <Link to="/signup" className="cursor-pointer hover:text-indigo-600 transition">
+            Sign Up
+          </Link>
         </div>
       </div>
     </nav>
