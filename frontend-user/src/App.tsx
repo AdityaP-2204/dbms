@@ -7,6 +7,7 @@ import CourseListing from "./components/courseListing"; // Import the new compon
 import FacultyListing from "./components/facultyListing"; // Import the new components
 import SignIn from "./components/signIn";
 import SignUp from "./components/signUp";
+import Profile from "./components/profile";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/signin" element={<SignIn></SignIn>} ></Route>
         <Route path="/signup" element={<SignUp></SignUp>} ></Route>
+        <Route path="/profile" element={<Profile/>} ></Route>
       </Routes>
     </Router>
   );

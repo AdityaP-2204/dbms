@@ -1,10 +1,29 @@
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
-  const handleSubmit = (e:any) => {
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
+  const navigate=useNavigate();
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
-    // Handle form submission logic here (e.g., authentication, API call)
-    console.log("Sign In button clicked!");
+    try {
+    const response = await axios.get('http://localhost:8080/api/v1/user', {
+      params: {
+          email: email,
+          password: password
+        }
+      });
+      console.log(response.data);
+      localStorage.setItem("id",response.data.id);
+      navigate("/");
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    setEmail("");
+    setPassword("");
   };
 
   return (
@@ -31,6 +50,8 @@ export default function SignIn() {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
+                value={email}
+                onChange={(e)=>setEmail(e.target.value)}
               />
             </div>
             <div className="pt-5">
@@ -45,6 +66,8 @@ export default function SignIn() {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
+                value={password}
+                onChange={(e)=>setPassword(e.target.value)}
               />
             </div>
           </div>

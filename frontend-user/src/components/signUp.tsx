@@ -1,11 +1,46 @@
 // src/components/SignUp.tsx
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function SignUp() {
-  const handleSubmit = (e:any) => {
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phoneNumber: "",
+    role:"user",
+    address: "",
+  });
+  const navigate=useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here (e.g., creating a new user)
-    console.log("Sign Up button clicked!");
+    // Handle form submission logic here (e.g., API call to backend)
+    try{
+      const response=await axios.post("http://localhost:8080/api/v1/user",formData);
+      console.log(response);
+      console.log("Form Submitted:", formData);
+      navigate("/");
+    }catch(err){
+      console.error(err);
+    }
+    setFormData({ 
+      name: "",
+      email: "",
+      password: "",
+      phoneNumber: "",
+      role:"user",
+      address: "",
+    });
   };
 
   return (
@@ -17,37 +52,45 @@ export default function SignUp() {
             Join us to explore a world of courses and knowledge.
           </p>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-5">
+            {/* Full Name (required) */}
             <div>
               <label htmlFor="full-name" className="sr-only">
                 Full Name
               </label>
               <input
                 id="full-name"
-                name="fullName"
+                name="name"
                 type="text"
-                autoComplete="name"
+                value={formData.name}
+                onChange={handleChange}
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Full Name"
               />
             </div>
-            <div className="pt-5">
-              <label htmlFor="email-address" className="sr-only ">
+
+            {/* Email (required) */}
+            <div>
+              <label htmlFor="email" className="sr-only">
                 Email address
               </label>
               <input
-                id="email-address"
+                id="email"
                 name="email"
                 type="email"
-                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Email address"
               />
             </div>
-            <div className="pt-5">
+
+            {/* Password (required) */}
+            <div>
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
@@ -55,23 +98,59 @@ export default function SignUp() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="new-password"
+                value={formData.password}
+                onChange={handleChange}
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Password"
+              />
+            </div>
+
+            {/* Phone Number (optional) */}
+            <div>
+              <label htmlFor="phoneNumber" className="sr-only">
+                Phone Number
+              </label>
+              <input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="tel"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Phone Number (optional)"
+              />
+            </div>
+
+            {/* Address (optional) */}
+            <div>
+              <label htmlFor="address" className="sr-only">
+                Address
+              </label>
+              <input
+                id="address"
+                name="address"
+                type="text"
+                value={formData.address}
+                onChange={handleChange}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Address (optional)"
               />
             </div>
           </div>
 
+          {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full py-2 px-4 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Sign Up
             </button>
           </div>
         </form>
+
+        {/* Sign In Link */}
         <div className="text-center text-sm text-gray-600">
           <p>
             Already have an account?{" "}
