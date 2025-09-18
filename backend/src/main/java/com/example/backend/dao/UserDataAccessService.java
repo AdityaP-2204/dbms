@@ -64,22 +64,39 @@ public class UserDataAccessService implements UserDao {
         );
     }
 
+    @Override
+    public User getUserById(UUID id) {
+        final String sql="SELECT id, name, email, password, role, phoneNumber, address FROM users WHERE id = ? ";
+        return jdbcTemplate.queryForObject(
+                sql,
+                new Object[]{id},  // pass the parameter
+                (resultSet, i) -> {
+                    UUID id1 = UUID.fromString(resultSet.getString("id"));
+                    String name1 = resultSet.getString("name");
+                    String email1 = resultSet.getString("email");
+                    String password1 = resultSet.getString("password");
+                    String role = resultSet.getString("role");
+                    String phoneNumber = resultSet.getString("phoneNumber");
+                    String address = resultSet.getString("address");
+                    return new User(id1, name1, email1, password1, role, phoneNumber, address);
+                }
+        );
+    }
+
 
     @Override
-    public int updateUser(UUID id, User user) {
-        final String sql = "UPDATE users SET name=?, email=?, password=?, role=?, phoneNumber=?, address=? WHERE id=?";
-
+    public int updateUser(UUID id, String name, String email, String address, String phoneNumber) {
+        final String sql = "UPDATE users SET name = ?, email = ?, phoneNumber = ?, address = ? WHERE id = ?";
         return jdbcTemplate.update(
                 sql,
-                user.getName(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getRole(),
-                user.getPhoneNumber(),
-                user.getAddress(),
+                name,
+                email,
+                phoneNumber,
+                address,
                 id
         );
     }
+
 
 
     @Override

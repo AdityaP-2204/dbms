@@ -25,11 +25,14 @@ public class UserService {
     public User getUserByEmailPassword(String email, String password) {
         return userDao.getUserByEmailPassword(email,password);
     }
-    public int updateUser(UUID id,User user) {
-        return userDao.updateUser(id,user);
+    public int updateUser(UUID id,String name, String email, String address, String phoneNumber) {
+        return userDao.updateUser(id,name,email,address,phoneNumber);
     }
 
     public int deleteUser(UUID id) {
         return userDao.deleteUser(id);
+    }
+    public User getUserById(UUID id) {
+        return userDao.getUserById(id);
     }
 }

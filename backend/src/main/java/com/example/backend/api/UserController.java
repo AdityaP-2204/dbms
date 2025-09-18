@@ -34,12 +34,23 @@ public class UserController {
     }
     @PutMapping(params="id")
     public int updateUser(@RequestParam UUID id, @RequestBody User user) {
-        return userService.updateUser(id,user);
+        return  userService.updateUser(
+                id,
+                user.getName(),
+                user.getEmail(),
+                user.getAddress(),
+                user.getPhoneNumber()
+        );
     }
 
     @DeleteMapping(params="id")
     public void deleteUser(@RequestParam UUID id) {
         userService.deleteUser(id);
+    }
+
+    @GetMapping(params="id")
+    public User getUserById(@RequestParam UUID id) {
+        return userService.getUserById(id);
     }
 
 }
