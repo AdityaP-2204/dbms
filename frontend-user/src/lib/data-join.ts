@@ -11,8 +11,8 @@ export interface JoinedProduct {
   product_type: ProductType;
   product_image: string;
   isCombo: boolean;
-  rating: number; // New field
-  total_reviews: number; // New field
+  rating: number; 
+  total_reviews: number; 
   variants: ProductVariant[];
   subjects: string[];
   faculties: { name: string; designation: string }[];
