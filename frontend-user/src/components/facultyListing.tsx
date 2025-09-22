@@ -7,8 +7,8 @@ interface Faculty {
   name: string;
   email: string;
   description: string;
-  profileImage: string;   // this should come from backend (e.g. "/ca-new-logo.jpg")
-  instituteName: string;
+  profile_image: string;   // this should come from backend (e.g. "/ca-new-logo.jpg")
+  institute_name: string;
 }
 
 export default function FacultyListing() {
@@ -63,7 +63,7 @@ export default function FacultyListing() {
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="relative">
                 <img
-                  src={faculty.profileImage || "/placeholder.svg"} 
+                  src={faculty.profile_image || "/placeholder.svg"} 
                   alt={`Portrait of ${faculty.name}`}
                   className="w-24 h-24 rounded-full object-cover border-2 border-gray-300 transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
@@ -79,7 +79,7 @@ export default function FacultyListing() {
                 <div className="flex items-center justify-center gap-1 text-gray-500">
                   <MapPin className="w-4 h-4" />
                   <span className="text-sm font-medium">
-                    {faculty.instituteName}
+                    {faculty.institute_name}
                   </span>
                 </div>
               </div>
