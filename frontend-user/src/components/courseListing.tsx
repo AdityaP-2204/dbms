@@ -5,8 +5,8 @@ import axios from "axios";
 export default function CourseListing() {
   const [courses,setCourses]=useState([{
     id:"",
-    courseName:"",
-    courseDescription:""
+    course_name:"",
+    course_description:""
   }])
   useEffect(()=>{
     async function getCourses(){
@@ -22,8 +22,8 @@ export default function CourseListing() {
       <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {courses.map((course) => (
           <div key={course.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-            <h3 className="text-xl font-bold text-gray-900">{course.courseName}</h3>
-            <p className="mt-2 text-gray-600">{ course.courseDescription}</p>
+            <h3 className="text-xl font-bold text-gray-900">{course.course_name}</h3>
+            <p className="mt-2 text-gray-600">{ course.course_description}</p>
           </div>
         ))}
       </div>
