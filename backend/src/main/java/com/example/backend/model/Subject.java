@@ -4,20 +4,16 @@ import java.util.UUID;
 
 public class Subject {
     private final UUID id;
-    private final String subjectName;
-    private final String subjectDescription;
-    public Subject(UUID id, String subjectName, String subjectDescription) {
+    private final String subject_name;
+    private final String subject_description;
+
+    public Subject(UUID id, String subject_name, String subject_description) {
         this.id = id;
-        this.subjectName = subjectName;
-        this.subjectDescription = subjectDescription;
+        this.subject_name = subject_name;
+        this.subject_description = subject_description;
     }
-    public UUID getId() {
-        return id;
-    }
-    public String getSubjectName() {
-        return subjectName;
-    }
-    public String getSubjectDescription() {
-        return subjectDescription;
-    }
+
+    public UUID getId() { return id; }
+    public String getSubject_name() { return subject_name; }
+    public String getSubject_description() { return subject_description; }
 }

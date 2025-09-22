@@ -1,13 +1,59 @@
 // ProductDetails.tsx
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { joinedProducts } from "../lib/data-join";
+interface Faculty{
+  id: string;
+  name:string;
+  description:string;
+  email:string;
+  institute_name:string;
+  profile_image:string;
+}
+
+interface Variant{
+    id:string;
+    attempt:string;
+    price:number;
+    variant_image:string;
+    delivery_mode:string;
+    availability:boolean;
+    validity:string;
+    product_id:string;
+}
+interface Review{
+    rating:number,
+    comment:string,
+    reviewer:string
+}
+interface JoinedProduct {
+  id: number;
+  title: string;
+  description: string;
+  course_name: string;
+  course_description: string;
+  product_type: string;
+  product_image: string;
+  is_combo: boolean;
+  rating: number; 
+  total_reviews: number; 
+  variants: Variant[];
+  subjects: string[];
+  faculties: Faculty[];
+  reviews: Review[];
+}
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const product = joinedProducts.find((p) => p.id === Number(id));
-
+  const[product,setProduct]=useState<JoinedProduct>();
+  useEffect(()=>{
+    async function getDetails(){
+      const response=await axios.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
+      setProduct(response.data);
+    }
+    getDetails();
+  },[])
   // State to manage the selected variant
   const [selectedVariant, setSelectedVariant] = useState(
     product?.variants[0] || null
@@ -49,7 +95,7 @@ export default function ProductDetails() {
             >
               {product.product_type}
             </span>
-            {product.isCombo && (
+            {product.is_combo && (
               <span className="inline-block px-4 py-1 text-sm font-bold bg-yellow-100 text-yellow-700 rounded-full">
                 Combo
               </span>
@@ -75,9 +121,9 @@ export default function ProductDetails() {
               <div className="flex flex-col gap-4">
                 {product.variants.map((variant) => (
                   <label
-                    key={variant.mode}
+                    key={variant.delivery_mode}
                     className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all border-2 ${
-                      selectedVariant?.mode === variant.mode
+                      selectedVariant?.delivery_mode === variant.delivery_mode
                         ? "border-indigo-500 bg-indigo-50"
                         : "border-gray-200 hover:bg-gray-100"
                     }`}
@@ -86,17 +132,17 @@ export default function ProductDetails() {
                       <input
                         type="radio"
                         name="product-mode"
-                        value={variant.mode}
-                        checked={selectedVariant?.mode === variant.mode}
+                        value={variant.delivery_mode}
+                        checked={selectedVariant?.delivery_mode === variant.delivery_mode}
                         onChange={() => setSelectedVariant(variant)}
                         className="form-radio text-indigo-600 h-5 w-5"
                       />
                       <div>
                         <span className="font-semibold text-gray-800">
-                          {variant.mode}
+                          {variant.delivery_mode}
                         </span>
                         <p className="text-sm text-gray-500">
-                          {variant.description}
+                          {variant.attempt}
                         </p>
                       </div>
                     </div>
@@ -144,7 +190,7 @@ export default function ProductDetails() {
                       <span className="text-sm">
                         • {f.name} -{" "}
                         <span className="text-gray-500 text-xs">
-                          {f.designation}
+                          {f.description}
                         </span>
                       </span>
                     </li>

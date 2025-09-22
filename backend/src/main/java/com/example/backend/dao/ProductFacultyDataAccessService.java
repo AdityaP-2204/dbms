@@ -2,17 +2,18 @@ package com.example.backend.dao;
 
 import com.example.backend.model.Faculty;
 import com.example.backend.model.ProductFaculty;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository("postgresProductFaculty")
-public class ProductFacultyDataAccessService implements ProductFacultyDao{
+public class ProductFacultyDataAccessService implements ProductFacultyDao {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Autowired
     public ProductFacultyDataAccessService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -20,37 +21,34 @@ public class ProductFacultyDataAccessService implements ProductFacultyDao{
 
     @Override
     public int addProductFaculty(ProductFaculty productFaculty) {
-        final String sql="INSERT INTO productFaculty (productId, facultyId) VALUES (?,?)";
-        return jdbcTemplate.update(sql,productFaculty.getProductId(),productFaculty.getFacultyId());
+        final String sql = "INSERT INTO product_faculty (product_id, faculty_id) VALUES (?,?)";
+        return jdbcTemplate.update(sql, productFaculty.getProduct_id(), productFaculty.getFaculty_id());
     }
 
     @Override
     public List<ProductFaculty> getAllProductFaculty() {
-        final String sql="SELECT * FROM productFaculty";
-        return jdbcTemplate.query(sql,(resultSet,i)->{
-            UUID productId = UUID.fromString(resultSet.getString("productId"));
-            UUID facultyId = UUID.fromString(resultSet.getString("facultyId"));
-            return new ProductFaculty(productId,facultyId);
-        });
+        final String sql = "SELECT * FROM product_faculty";
+        return jdbcTemplate.query(sql, (rs, i) -> new ProductFaculty(
+                UUID.fromString(rs.getString("product_id")),
+                UUID.fromString(rs.getString("faculty_id"))
+        ));
     }
 
     @Override
-    public List<Faculty> getAllFacultyByProductId(UUID productId) {
+    public List<Faculty> getAllFacultyByProductId(UUID product_id) {
         final String sql = """
-            SELECT f.id, f.name, f.description, f.email, f.InstituteName, f.ProfileImage
+            SELECT f.id, f.name, f.description, f.email, f.institute_name, f.profile_image
             FROM faculty f
-            JOIN productFaculty pf ON f.id = pf.facultyId
-            WHERE pf.productId = ?
-          """;
-        return jdbcTemplate.query(sql,new Object[]{productId},(resultSet,id)->{
-            UUID facultyId=UUID.fromString(resultSet.getString("id"));
-            String facultyName = resultSet.getString("name");
-            String facultyDescription = resultSet.getString("description");
-            String email=resultSet.getString("email");
-            String instituteName=resultSet.getString("InstituteName");
-            String profileImage=resultSet.getString("ProfileImage");
-            return new Faculty(facultyId,facultyName,facultyDescription,email,instituteName,profileImage);
-        });
+            JOIN product_faculty pf ON f.id = pf.faculty_id
+            WHERE pf.product_id = ?
+        """;
+        return jdbcTemplate.query(sql, new Object[]{product_id}, (rs, i) -> new Faculty(
+                UUID.fromString(rs.getString("id")),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getString("email"),
+                rs.getString("institute_name"),
+                rs.getString("profile_image")
+        ));
     }
-
 }

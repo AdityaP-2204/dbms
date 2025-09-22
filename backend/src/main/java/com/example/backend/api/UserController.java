@@ -39,7 +39,7 @@ public class UserController {
                 user.getName(),
                 user.getEmail(),
                 user.getAddress(),
-                user.getPhoneNumber()
+                user.getPhone_number()
         );
     }
 

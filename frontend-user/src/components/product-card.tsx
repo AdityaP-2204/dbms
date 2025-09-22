@@ -1,9 +1,52 @@
 // ProductCard.tsx
-import type { JoinedProduct } from "../lib/data-join";
 import { useNavigate } from "react-router-dom";
+interface Faculty{
+  id: string;
+  name:string;
+  description:string;
+  email:string;
+  institute_name:string;
+  profile_image:string;
+}
+
+interface Variant{
+    id:string;
+    attempt:string;
+    price:number;
+    variant_image:string;
+    delivery_mode:string;
+    availability:boolean;
+    validity:string;
+    product_id:string;
+}
+interface Review{
+    rating:number,
+    comment:string,
+    reviewer:string
+}
+interface JoinedProduct {
+  id: number;
+  title: string;
+  description: string;
+  course_name: string;
+  course_description: string;
+  product_type: string;
+  product_image: string;
+  is_combo: boolean;
+  rating: number; 
+  total_reviews: number; 
+  variants: Variant[];
+  subjects: string[];
+  faculties: Faculty[];
+  reviews: Review[];
+}
 
 export default function ProductCard(product: JoinedProduct) {
   const navigate = useNavigate();
+  const minPrice =
+  product.variants.length > 0
+    ? Math.min(...product.variants.map(v => v.price))
+    : 0; 
 
   return (
     <div
@@ -65,7 +108,7 @@ export default function ProductCard(product: JoinedProduct) {
         <div className="mt-4 flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-2xl font-bold text-gray-900">
-              ₹{product.variants[0].price}
+              ₹{minPrice}
             </span>
             <span className="text-xs text-gray-400">
               Starting from

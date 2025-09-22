@@ -14,94 +14,75 @@ public class UserDataAccessService implements UserDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserDataAccessService(JdbcTemplate JDBCTemplate) {
-        this.jdbcTemplate = JDBCTemplate;
+    public UserDataAccessService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public int insertUser(UUID id, User user) {
-        final String sql="INSERT INTO users (id,name,email,password,role,phoneNumber,address) VALUES (?,?,?,?,?,?,?)";
-        return jdbcTemplate.update(sql,id,user.getName(),
-                        user.getEmail(),
-                        user.getPassword(),
-                        user.getRole(),
-                        user.getPhoneNumber(),
-                        user.getAddress());
+        final String sql = "INSERT INTO users (id, name, email, password, role, phone_number, address) VALUES (?,?,?,?,?,?,?)";
+        return jdbcTemplate.update(sql,
+                id,
+                user.getName(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                user.getPhone_number(),
+                user.getAddress()
+        );
     }
 
     @Override
     public List<User> getAllUsers() {
-         final String sql="SELECT id,name,email,password,role,phoneNumber,address FROM users";
-         return jdbcTemplate.query(sql, (resultSet,i)->{
-             UUID id=UUID.fromString(resultSet.getString("id"));
-             String name=resultSet.getString("name");
-             String email=resultSet.getString("email");
-             String password=resultSet.getString("password");
-             String role=resultSet.getString("role");
-             String phoneNumber=resultSet.getString("phoneNumber");
-             String address=resultSet.getString("address");
-             return new User(id,name,email,password,role,phoneNumber,address);
-         });
+        final String sql = "SELECT * FROM users";
+        return jdbcTemplate.query(sql, (rs, i) -> new User(
+                UUID.fromString(rs.getString("id")),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("role"),
+                rs.getString("phone_number"),
+                rs.getString("address")
+        ));
     }
 
     @Override
     public User getUserByEmailPassword(String email, String password) {
-        final String sql = "SELECT id, name, email, password, role, phoneNumber, address FROM users WHERE email = ? AND password = ?";
-
-        return jdbcTemplate.queryForObject(
-                sql,
-                new Object[]{email, password},  // pass parameters here ✅
-                (resultSet, i) -> {
-                    UUID id = UUID.fromString(resultSet.getString("id"));
-                    String name = resultSet.getString("name");
-                    String email1 = resultSet.getString("email");
-                    String password1 = resultSet.getString("password");
-                    String role = resultSet.getString("role");
-                    String phoneNumber = resultSet.getString("phoneNumber"); // ✅ works now
-                    String address = resultSet.getString("address");
-                    return new User(id, name, email1, password1, role, phoneNumber, address);
-                }
-        );
+        final String sql = "SELECT * FROM users WHERE email=? AND password=?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{email, password}, (rs, i) -> new User(
+                UUID.fromString(rs.getString("id")),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("role"),
+                rs.getString("phone_number"),
+                rs.getString("address")
+        ));
     }
 
     @Override
     public User getUserById(UUID id) {
-        final String sql="SELECT id, name, email, password, role, phoneNumber, address FROM users WHERE id = ? ";
-        return jdbcTemplate.queryForObject(
-                sql,
-                new Object[]{id},  // pass the parameter
-                (resultSet, i) -> {
-                    UUID id1 = UUID.fromString(resultSet.getString("id"));
-                    String name1 = resultSet.getString("name");
-                    String email1 = resultSet.getString("email");
-                    String password1 = resultSet.getString("password");
-                    String role = resultSet.getString("role");
-                    String phoneNumber = resultSet.getString("phoneNumber");
-                    String address = resultSet.getString("address");
-                    return new User(id1, name1, email1, password1, role, phoneNumber, address);
-                }
-        );
+        final String sql = "SELECT * FROM users WHERE id=?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, i) -> new User(
+                UUID.fromString(rs.getString("id")),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("role"),
+                rs.getString("phone_number"),
+                rs.getString("address")
+        ));
     }
-
 
     @Override
-    public int updateUser(UUID id, String name, String email, String address, String phoneNumber) {
-        final String sql = "UPDATE users SET name = ?, email = ?, phoneNumber = ?, address = ? WHERE id = ?";
-        return jdbcTemplate.update(
-                sql,
-                name,
-                email,
-                phoneNumber,
-                address,
-                id
-        );
+    public int updateUser(UUID id, String name, String email, String phone_number, String address) {
+        final String sql = "UPDATE users SET name=?, email=?, phone_number=?, address=? WHERE id=?";
+        return jdbcTemplate.update(sql, name, email, phone_number, address, id);
     }
-
-
 
     @Override
     public int deleteUser(UUID id) {
-        final String sql="DELETE FROM users WHERE id=? ";
-        return jdbcTemplate.update(sql,id);
+        final String sql = "DELETE FROM users WHERE id=?";
+        return jdbcTemplate.update(sql, id);
     }
 }

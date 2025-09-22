@@ -1,6 +1,5 @@
 // src/components/CourseListing.tsx
 import { useEffect, useState } from "react";
-import { courses } from "../lib/mock-data";
 import axios from "axios";
 
 export default function CourseListing() {

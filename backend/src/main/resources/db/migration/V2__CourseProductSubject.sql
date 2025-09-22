@@ -1,27 +1,27 @@
-CREATE TABLE courses(
+CREATE TABLE courses (
     id UUID PRIMARY KEY,
-    courseName VARCHAR(100) NOT NULL,
-    courseDescription VARCHAR(100)
+    course_name VARCHAR(100) NOT NULL,
+    course_description VARCHAR(100)
 );
 
-CREATE TABLE subjects(
+CREATE TABLE subjects (
     id UUID PRIMARY KEY,
-    subjectName VARCHAR(100) NOT NULL,
-    subjectDescription VARCHAR(100)
+    subject_name VARCHAR(100) NOT NULL,
+    subject_description VARCHAR(100)
 );
 
-CREATE TABLE products(
+CREATE TABLE products (
     id UUID PRIMARY KEY,
-    productTitle VARCHAR(100) NOT NULL,
-    productDescription VARCHAR(100),
-    courseId UUID REFERENCES courses(id),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    productType VARCHAR(100) DEFAULT 'Regular',
-    isCombo BOOLEAN
+    product_title VARCHAR(100) NOT NULL,
+    product_description VARCHAR(100),
+    course_id UUID REFERENCES courses(id),
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    product_type VARCHAR(100) DEFAULT 'Regular',
+    is_combo BOOLEAN
 );
 
-CREATE TABLE productSubjects(
+CREATE TABLE product_subjects (
     product_id UUID REFERENCES products(id),
     subject_id UUID REFERENCES subjects(id),
-    PRIMARY KEY (product_id,subject_id)
+    PRIMARY KEY (product_id, subject_id)
 );
