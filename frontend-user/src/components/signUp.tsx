@@ -108,12 +108,12 @@ export default function SignUp() {
 
             {/* Phone Number (optional) */}
             <div>
-              <label htmlFor="phoneNumber" className="sr-only">
+              <label htmlFor="phone_number" className="sr-only">
                 Phone Number
               </label>
               <input
-                id="phoneNumber"
-                name="phoneNumber"
+                id="phone_number"
+                name="phone_number"
                 type="tel"
                 value={formData.phone_number}
                 onChange={handleChange}

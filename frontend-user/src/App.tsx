@@ -10,6 +10,7 @@ import SignUp from "./components/signUp";
 import Profile from "./components/profile";
 import Cart from "./components/cart";
 import Wishlist from "./components/wishlist";
+import FAQ from "./components/faq";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/profile" element={<Profile/>} ></Route>
         <Route path="/cart" element={<Cart/>} ></Route>
         <Route path="/wishlist" element={<Wishlist/>} ></Route>
+        <Route path="/faq" element={<FAQ/>} ></Route>
       </Routes>
     </Router>
   );
