@@ -16,7 +16,7 @@ export default function Profile() {
   const [profile, setProfile] = useState({
     name: "Unnamed User",
     email: "No email provided",
-    phoneNumber: "Not provided",
+    phone_number: "Not provided",
     address: "Not provided",
   });
   const [editData, setEditData] = useState(profile);
@@ -37,8 +37,8 @@ export default function Profile() {
         setProfile({
           name: data?.name || "Unnamed User",
           email: data?.email || "No email provided",
-          address: data?.address || "Not provided",
-          phoneNumber: data?.phoneNumber || "Not provided",
+          phone_number: data?.phone_number || "Not provided",
+          address: data?.address || "Not provided"
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -66,7 +66,7 @@ export default function Profile() {
         {
           name: editData.name,
           email: editData.email,
-          phoneNumber: editData.phoneNumber,
+          phone_number: editData.phone_number,
           address: editData.address,
         },
         {
@@ -140,7 +140,7 @@ export default function Profile() {
                     Phone Number
                   </h3>
                   <p className="text-gray-900 font-semibold">
-                    {profile.phoneNumber}
+                    {profile.phone_number}
                   </p>
                 </div>
               </div>
@@ -205,8 +205,8 @@ export default function Profile() {
                 </label>
                 <input
                   type="text"
-                  name="phoneNumber"
-                  value={editData.phoneNumber}
+                  name="phone_number"
+                  value={editData.phone_number}
                   onChange={handleChange}
                   placeholder="Enter your phone number"
                   className="w-full border-gray-300 rounded-lg bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

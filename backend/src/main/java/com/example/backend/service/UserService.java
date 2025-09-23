@@ -25,8 +25,8 @@ public class UserService {
     public User getUserByEmailPassword(String email, String password) {
         return userDao.getUserByEmailPassword(email,password);
     }
-    public int updateUser(UUID id,String name, String email, String address, String phoneNumber) {
-        return userDao.updateUser(id,name,email,address,phoneNumber);
+    public int updateUser(UUID id,String name, String email, String phone_number, String address) {
+        return userDao.updateUser(id,name,email,phone_number,address);
     }
 
     public int deleteUser(UUID id) {

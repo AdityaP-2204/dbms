@@ -38,8 +38,8 @@ public class UserController {
                 id,
                 user.getName(),
                 user.getEmail(),
-                user.getAddress(),
-                user.getPhone_number()
+                user.getPhone_number(),
+                user.getAddress()
         );
     }
 

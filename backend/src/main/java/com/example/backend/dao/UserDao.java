@@ -16,6 +16,6 @@ public interface UserDao {
     List<User> getAllUsers();
     User getUserByEmailPassword(String email, String password);
     User getUserById(UUID id);
-    int updateUser(UUID id, String name, String email, String address, String phoneNumber);
+    int updateUser(UUID id, String name, String email, String phone_number, String address);
     int deleteUser(UUID id);
 }

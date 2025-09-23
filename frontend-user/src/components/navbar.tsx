@@ -25,7 +25,12 @@ export default function Navbar() {
           <Link to="/faculty" className="cursor-pointer hover:text-indigo-600 transition">
             Faculty
           </Link>
-
+          <Link to="/faq" className="cursor-pointer hover:text-indigo-600 transition">
+            FAQs
+          </Link>
+          <Link to="/community" className="cursor-pointer hover:text-indigo-600 transition">
+            Community Channel
+          </Link>
           {userId ? (
             // Profile Section if logged in
             <>
