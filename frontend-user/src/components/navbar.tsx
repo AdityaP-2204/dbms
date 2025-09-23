@@ -28,9 +28,17 @@ export default function Navbar() {
 
           {userId ? (
             // Profile Section if logged in
-            <Link to="/profile" className="cursor-pointer hover:text-indigo-600 transition">
-              Profile
-            </Link>
+            <>
+              <Link to="/wishlist" className="cursor-pointer hover:text-indigo-600 transition">
+                Wishlist
+              </Link>
+              <Link to="/cart" className="cursor-pointer hover:text-indigo-600 transition">
+                Cart
+              </Link>
+              <Link to="/profile" className="cursor-pointer hover:text-indigo-600 transition">
+                Profile
+              </Link>
+            </>
           ) : (
             // Show Sign In & Sign Up if not logged in
             <>

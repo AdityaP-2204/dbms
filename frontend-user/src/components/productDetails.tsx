@@ -153,12 +153,24 @@ export default function ProductDetails() {
                 ))}
               </div>
               <div className="flex gap-4 mt-6">
-                <button className="flex-1 py-3 text-lg font-bold text-indigo-600 border border-indigo-600 rounded-lg shadow hover:bg-indigo-50 transition-colors transform hover:scale-105">
+                <button
+                  onClick={() =>
+                    selectedVariant &&
+                    navigate("/wishlist", { state: { product, variant: selectedVariant } })
+                  }
+                  className="flex-1 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 transition-colors transform hover:scale-105"
+                >
                   Add to Wishlist
-                </button>
-                <button className="flex-1 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 transition-colors transform hover:scale-105">
+              </button>
+               <button
+                  onClick={() =>
+                    selectedVariant &&
+                    navigate("/cart", { state: { product, variant: selectedVariant } })
+                  }
+                  className="flex-1 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 transition-colors transform hover:scale-105"
+                >
                   Add to Cart
-                </button>
+              </button>
               </div>
             </div>
           )}

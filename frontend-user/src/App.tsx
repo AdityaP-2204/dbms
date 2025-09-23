@@ -8,6 +8,8 @@ import FacultyListing from "./components/facultyListing"; // Import the new comp
 import SignIn from "./components/signIn";
 import SignUp from "./components/signUp";
 import Profile from "./components/profile";
+import Cart from "./components/cart";
+import Wishlist from "./components/wishlist";
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/signin" element={<SignIn></SignIn>} ></Route>
         <Route path="/signup" element={<SignUp></SignUp>} ></Route>
         <Route path="/profile" element={<Profile/>} ></Route>
+        <Route path="/cart" element={<Cart/>} ></Route>
+        <Route path="/wishlist" element={<Wishlist/>} ></Route>
       </Routes>
     </Router>
   );
