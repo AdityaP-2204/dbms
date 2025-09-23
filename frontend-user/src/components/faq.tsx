@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa"; // Using existing icons
 
 const mockFaqs = [
   {
@@ -20,7 +20,7 @@ const mockFaqs = [
   {
     question: "Is articleship compulsory for CA?",
     answer:
-      "Yes, a 3-year articleship under a practicing Chartered Accountant is mandatory before you can attempt the CA Final exams.",
+    "Yes, a 3-year articleship under a practicing Chartered Accountant is mandatory before you can attempt the CA Final exams.",
   },
   {
     question: "Can I pursue CA along with graduation?",
@@ -42,9 +42,10 @@ export default function FAQ() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center py-12 px-4 pt-20">
-      <div className="max-w-2xl w-full">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+    <div className="min-h-screen flex justify-center py-12 px-4 pt-24 font-sans">
+      <div className="max-w-3xl w-full">
+        {/* Main Title - similar to "We partner with the world's leading universities" */}
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-12 text-center leading-tight">
           Frequently Asked Questions
         </h1>
 
@@ -52,22 +53,33 @@ export default function FAQ() {
           {mockFaqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-md p-5 cursor-pointer transition hover:shadow-lg"
-              onClick={() => toggleFAQ(index)}
+              className={`rounded-xl shadow-md transition-all duration-300 ease-in-out
+                ${openIndex === index ? "bg-purple-100 shadow-lg" : "bg-white hover:shadow-lg"}
+              `}
             >
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-800">
+              <button
+                className="flex justify-between items-center w-full p-6 text-left focus:outline-none"
+                onClick={() => toggleFAQ(index)}
+              >
+                <h2 className={`text-lg md:text-xl font-semibold transition-colors duration-200
+                  ${openIndex === index ? "text-purple-800" : "text-gray-800"}
+                `}>
                   {faq.question}
                 </h2>
                 {openIndex === index ? (
-                  <FaChevronUp className="text-gray-500" />
+                  <FaChevronUp className="text-purple-600 ml-4 flex-shrink-0" />
                 ) : (
-                  <FaChevronDown className="text-gray-500" />
+                  <FaChevronDown className="text-gray-500 ml-4 flex-shrink-0" />
                 )}
-              </div>
+              </button>
 
+              {/* Answer section - conditional rendering with smooth transition */}
               {openIndex === index && (
-                <p className="mt-3 text-gray-600">{faq.answer}</p>
+                <div className="px-6 pb-6 pt-2">
+                  <p className="text-gray-700 leading-relaxed text-base md:text-lg">
+                    {faq.answer}
+                  </p>
+                </div>
               )}
             </div>
           ))}

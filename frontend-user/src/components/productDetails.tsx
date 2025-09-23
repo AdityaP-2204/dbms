@@ -2,30 +2,33 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-interface Faculty{
+
+interface Faculty {
   id: string;
-  name:string;
-  description:string;
-  email:string;
-  institute_name:string;
-  profile_image:string;
+  name: string;
+  description: string;
+  email: string;
+  institute_name: string;
+  profile_image: string;
 }
 
-interface Variant{
-    id:string;
-    attempt:string;
-    price:number;
-    variant_image:string;
-    delivery_mode:string;
-    availability:boolean;
-    validity:string;
-    product_id:string;
+interface Variant {
+  id: string;
+  attempt: string;
+  price: number;
+  variant_image: string;
+  delivery_mode: string;
+  availability: boolean;
+  validity: string;
+  product_id: string;
 }
-interface Review{
-    rating:number,
-    comment:string,
-    reviewer:string
+
+interface Review {
+  rating: number;
+  comment: string;
+  reviewer: string;
 }
+
 interface JoinedProduct {
   id: number;
   title: string;
@@ -35,8 +38,8 @@ interface JoinedProduct {
   product_type: string;
   product_image: string;
   is_combo: boolean;
-  rating: number; 
-  total_reviews: number; 
+  rating: number;
+  total_reviews: number;
   variants: Variant[];
   subjects: string[];
   faculties: Faculty[];
@@ -46,18 +49,28 @@ interface JoinedProduct {
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const[product,setProduct]=useState<JoinedProduct>();
-  useEffect(()=>{
-    async function getDetails(){
-      const response=await axios.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
+  const [product, setProduct] = useState<JoinedProduct>();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("id");
+    setUserId(storedId);
+  }, []);
+
+  useEffect(() => {
+    async function getDetails() {
+      const response = await axios.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
       setProduct(response.data);
     }
     getDetails();
-  },[])
+  }, [id]);
+
   // State to manage the selected variant
-  const [selectedVariant, setSelectedVariant] = useState(
-    product?.variants[0] || null
-  );
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+
+  useEffect(() => {
+    if (product?.variants.length) setSelectedVariant(product.variants[0]);
+  }, [product]);
 
   if (!product)
     return <div className="p-10 text-center text-lg">Product not found</div>;
@@ -72,7 +85,7 @@ export default function ProductDetails() {
       </button>
 
       <div className="flex flex-col md:flex-row gap-12 bg-white rounded-xl shadow-xl p-8">
-        {/* Image Section - Adjusted for better alignment */}
+        {/* Image Section */}
         <div className="md:w-1/3 flex-shrink-0">
           <img
             src={product.product_image}
@@ -102,22 +115,16 @@ export default function ProductDetails() {
             )}
           </div>
 
-          <p className="text-gray-600 text-lg leading-relaxed">
-            {product.description}
-          </p>
+          <p className="text-gray-600 text-lg leading-relaxed">{product.description}</p>
           <p className="text-gray-500 font-medium">
             Course:{" "}
-            <span className="text-indigo-600 font-bold">
-              {product.course_name}
-            </span>
+            <span className="text-indigo-600 font-bold">{product.course_name}</span>
           </p>
 
           {/* Variants Section */}
           {product.variants.length > 0 && (
             <div className="bg-gray-50 p-6 rounded-lg border">
-              <h3 className="font-bold text-xl text-gray-800 mb-4">
-                Choose a Mode
-              </h3>
+              <h3 className="font-bold text-xl text-gray-800 mb-4">Choose a Mode</h3>
               <div className="flex flex-col gap-4">
                 {product.variants.map((variant) => (
                   <label
@@ -138,39 +145,47 @@ export default function ProductDetails() {
                         className="form-radio text-indigo-600 h-5 w-5"
                       />
                       <div>
-                        <span className="font-semibold text-gray-800">
-                          {variant.delivery_mode}
-                        </span>
-                        <p className="text-sm text-gray-500">
-                          {variant.attempt}
-                        </p>
+                        <span className="font-semibold text-gray-800">{variant.delivery_mode}</span>
+                        <p className="text-sm text-gray-500">{variant.attempt}</p>
                       </div>
                     </div>
-                    <span className="font-bold text-lg text-indigo-600">
-                      ₹{variant.price}
-                    </span>
+                    <span className="font-bold text-lg text-indigo-600">₹{variant.price}</span>
                   </label>
                 ))}
               </div>
+
               <div className="flex gap-4 mt-6">
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    if (!userId) return alert("Please sign in to add to Wishlist.");
                     selectedVariant &&
-                    navigate("/wishlist", { state: { product, variant: selectedVariant } })
-                  }
-                  className="flex-1 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 transition-colors transform hover:scale-105"
+                      navigate("/wishlist", { state: { product, variant: selectedVariant } });
+                  }}
+                  disabled={!userId}
+                  className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
+                    userId
+                      ? "bg-indigo-600 hover:bg-indigo-700"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
                 >
                   Add to Wishlist
-              </button>
-               <button
-                  onClick={() =>
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (!userId) return alert("Please sign in to add to Cart.");
                     selectedVariant &&
-                    navigate("/cart", { state: { product, variant: selectedVariant } })
-                  }
-                  className="flex-1 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 transition-colors transform hover:scale-105"
+                      navigate("/cart", { state: { product, variant: selectedVariant } });
+                  }}
+                  disabled={!userId}
+                  className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
+                    userId
+                      ? "bg-indigo-600 hover:bg-indigo-700"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
                 >
                   Add to Cart
-              </button>
+                </button>
               </div>
             </div>
           )}
@@ -179,9 +194,7 @@ export default function ProductDetails() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             {product.subjects.length > 0 && (
               <div>
-                <h4 className="font-bold text-gray-800 text-lg mb-2">
-                  Subjects
-                </h4>
+                <h4 className="font-bold text-gray-800 text-lg mb-2">Subjects</h4>
                 <ul className="list-inside text-gray-600 space-y-1">
                   {product.subjects.map((s, idx) => (
                     <li key={idx}>
@@ -193,17 +206,13 @@ export default function ProductDetails() {
             )}
             {product.faculties.length > 0 && (
               <div>
-                <h4 className="font-bold text-gray-800 text-lg mb-2">
-                  Faculty
-                </h4>
+                <h4 className="font-bold text-gray-800 text-lg mb-2">Faculty</h4>
                 <ul className="list-inside text-gray-600 space-y-1">
                   {product.faculties.map((f, idx) => (
                     <li key={idx}>
                       <span className="text-sm">
                         • {f.name} -{" "}
-                        <span className="text-gray-500 text-xs">
-                          {f.description}
-                        </span>
+                        <span className="text-gray-500 text-xs">{f.description}</span>
                       </span>
                     </li>
                   ))}

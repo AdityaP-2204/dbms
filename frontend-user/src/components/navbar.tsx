@@ -43,6 +43,9 @@ export default function Navbar() {
               <Link to="/profile" className="cursor-pointer hover:text-indigo-600 transition">
                 Profile
               </Link>
+              <button className="cursor-pointer hover:text-indigo-600 transition" onClick={()=>{
+                localStorage.removeItem("id");
+              }} >Sign Out</button>
             </>
           ) : (
             // Show Sign In & Sign Up if not logged in
