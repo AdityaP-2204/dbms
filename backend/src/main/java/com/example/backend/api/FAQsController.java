@@ -20,7 +20,6 @@ public class FAQsController {
     public int addFAQs(@RequestBody FAQs FAQ){
         return FAQService.addFAQs(FAQ);
     }
-
     @GetMapping
     public List<FAQs> getAllFAQs(){
         return FAQService.getAllFAQs();
