@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping("/api/v1/review")
@@ -47,11 +48,21 @@ public class ReviewController {
 
     @PutMapping(params = "review_id")
     public int updateReview(@RequestParam Integer review_id, @RequestBody Review review) {
-        return reviewService.updateReview(review_id, review.getComment());
+        return reviewService.updateReview(review_id, review.getComment(), review.getRating());
     }
 
     @DeleteMapping(params = "review_id")
     public int deleteReview(@RequestParam Integer review_id) {
         return reviewService.deleteReview(review_id);
+    }
+
+    @GetMapping("/stats")
+    public Map<String, Object> getProductRatingStats(@RequestParam UUID product_id) {
+        return reviewService.getProductRatingStats(product_id);
+    }
+
+    @GetMapping("/products-with-ratings")
+    public List<Map<String, Object>> getAllProductsWithRatings() {
+        return reviewService.getAllProductsWithRatings();
     }
 }

@@ -74,12 +74,17 @@ export default function ProductCard(product: JoinedProduct) {
           {product.description}
         </p>
         <div className="flex items-center gap-4 text-sm text-gray-500">
-          {product.total_reviews > 0 && (
+          {product.total_reviews > 0 ? (
             <div className="flex items-center gap-1">
               <span className="text-yellow-400">★</span>
               <span>
-                {product.rating.toFixed(1)} ({product.total_reviews})
+                {product.rating.toFixed(1)} ({product.total_reviews} review{product.total_reviews !== 1 ? 's' : ''})
               </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              <span className="text-gray-400">★</span>
+              <span className="text-gray-400">No reviews yet</span>
             </div>
           )}
           <div className="flex items-center gap-1">

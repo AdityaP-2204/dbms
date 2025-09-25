@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import reviewService from '../services/reviewService';
+import StarRating from './StarRating';
 import type { Review, User } from '../types';
 
 interface ReviewSectionProps {
@@ -15,7 +16,9 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingReview, setEditingReview] = useState<number | null>(null);
   const [newComment, setNewComment] = useState('');
+  const [newRating, setNewRating] = useState(5);
   const [editComment, setEditComment] = useState('');
+  const [editRating, setEditRating] = useState(5);
 
   // Fetch reviews for the product
   useEffect(() => {
@@ -56,6 +59,7 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
         user_id: userId,
         product_id: productId,
         comment: newComment.trim(),
+        rating: newRating,
         created_at: new Date().toISOString()
       };
 
@@ -63,6 +67,7 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
 
       if (result === 1) {
         setNewComment('');
+        setNewRating(5);
         setShowAddForm(false);
         fetchReviews(); // Refresh reviews
         alert('Review added successfully!');
@@ -78,12 +83,14 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
 
     try {
       const result = await reviewService.updateReview(reviewId, {
-        comment: editComment.trim()
+        comment: editComment.trim(),
+        rating: editRating
       });
 
       if (result === 1) {
         setEditingReview(null);
         setEditComment('');
+        setEditRating(5);
         fetchReviews(); // Refresh reviews
         alert('Review updated successfully!');
       }
@@ -109,14 +116,16 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
     }
   };
 
-  const startEditing = (review: Review) => {
+  const startEdit = (review: Review) => {
     setEditingReview(review.review_id);
     setEditComment(review.comment);
+    setEditRating(review.rating || 5);
   };
 
   const cancelEditing = () => {
     setEditingReview(null);
     setEditComment('');
+    setEditRating(5);
   };
 
   const formatDate = (dateString: string) => {
@@ -162,6 +171,18 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
       {showAddForm && userId && (
         <form onSubmit={handleAddReview} className="mb-6 p-6 bg-gray-50 rounded-lg border">
           <h5 className="font-semibold text-gray-800 mb-3">Write a Review</h5>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rating
+            </label>
+            <StarRating
+              rating={newRating}
+              onRatingChange={setNewRating}
+              size="lg"
+            />
+          </div>
+
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
@@ -181,6 +202,7 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
                 onClick={() => {
                   setShowAddForm(false);
                   setNewComment('');
+                  setNewRating(5);
                 }}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
               >
@@ -215,14 +237,17 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
                   <p className="font-semibold text-lg text-gray-800">
                     {users[review.user_id]?.name || 'Anonymous User'}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    {formatDate(review.created_at)}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <StarRating rating={review.rating} readonly size="sm" />
+                    <span className="text-sm text-gray-500">
+                      {formatDate(review.created_at)}
+                    </span>
+                  </div>
                 </div>
                 {userId === review.user_id && (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => startEditing(review)}
+                      onClick={() => startEdit(review)}
                       className="p-2 text-gray-500 hover:text-indigo-600 transition-colors"
                       title="Edit review"
                     >
@@ -241,6 +266,16 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
 
               {editingReview === review.review_id ? (
                 <div className="mt-3">
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rating
+                    </label>
+                    <StarRating
+                      rating={editRating}
+                      onRatingChange={setEditRating}
+                      size="md"
+                    />
+                  </div>
                   <textarea
                     value={editComment}
                     onChange={(e) => setEditComment(e.target.value)}

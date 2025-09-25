@@ -6,6 +6,7 @@ export interface Review {
   user_id: string;
   product_id: string;
   comment: string;
+  rating: number;
   created_at: string;
 }
 
@@ -68,9 +69,29 @@ export interface ReviewFormData {
   user_id: string;
   product_id: string;
   comment: string;
+  rating: number;
   created_at?: string;
 }
 
 export interface UpdateReviewData {
   comment: string;
+  rating: number;
+}
+
+// Product rating statistics
+export interface ProductRatingStats {
+  average_rating: number;
+  review_count: number;
+  five_star: number;
+  four_star: number;
+  three_star: number;
+  two_star: number;
+  one_star: number;
+}
+
+export interface ProductWithRating {
+  product_id: string;
+  product_title: string;
+  average_rating: number;
+  review_count: number;
 }
