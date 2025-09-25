@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import ReviewSection from "./reviewSection";
 
 interface Faculty {
   id: string;
@@ -222,24 +223,10 @@ export default function ProductDetails() {
           </div>
 
           {/* Reviews Section */}
-          {product.reviews.length > 0 && (
-            <div className="mt-8">
-              <h4 className="font-bold text-gray-800 text-xl mb-4">Reviews</h4>
-              <ul className="space-y-4">
-                {product.reviews.map((r, idx) => (
-                  <li key={idx} className="border p-5 rounded-lg bg-gray-50">
-                    <p className="font-semibold text-lg text-gray-800">
-                      {r.reviewer}
-                      <span className="text-sm font-normal text-yellow-500 ml-2">
-                        {Array(r.rating).fill("★")}
-                      </span>
-                    </p>
-                    <p className="text-gray-600 italic mt-1">"{r.comment}"</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <ReviewSection 
+            productId={product.id.toString()} 
+            userId={userId} 
+          />
         </div>
       </div>
     </div>
