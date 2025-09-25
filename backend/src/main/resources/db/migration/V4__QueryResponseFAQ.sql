@@ -19,5 +19,5 @@ CREATE TABLE response (
     message VARCHAR(255) NOT NULL,
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id UUID REFERENCES users(id),
-    query_id UUID REFERENCES queries(id);
+    query_id UUID REFERENCES queries(id)
 );
