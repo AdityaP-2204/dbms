@@ -1,5 +1,5 @@
 CREATE TABLE faq (
     id UUID PRIMARY KEY,
-    Question VARCHAR(100) NOT NULL,
-    Answer VARCHAR(100) NOT NULL
+    Question VARCHAR(500) NOT NULL,
+    Answer VARCHAR(500) NOT NULL
 );
