@@ -9,6 +9,7 @@ import {
   FaTimes,
   FaEnvelope,
 } from "react-icons/fa";
+import UserReviews from "./userReviews";
 
 export default function Profile() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -247,6 +248,9 @@ export default function Profile() {
           </>
         )}
       </div>
+
+      {/* User Reviews Section */}
+      {userId && <UserReviews userId={userId} />}
     </div>
   );
 }
