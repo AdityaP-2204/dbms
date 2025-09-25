@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaBook, FaStar } from 'react-icons/fa';
 import reviewService from '../services/reviewService';
+import StarRating from './StarRating';
 import type { Review, JoinedProduct } from '../types';
 import axios from 'axios';
 
@@ -14,6 +15,7 @@ export default function UserReviews({ userId }: UserReviewsProps) {
   const [loading, setLoading] = useState(true);
   const [editingReview, setEditingReview] = useState<number | null>(null);
   const [editComment, setEditComment] = useState('');
+  const [editRating, setEditRating] = useState(5);
 
   useEffect(() => {
     fetchUserReviews();
@@ -49,12 +51,14 @@ export default function UserReviews({ userId }: UserReviewsProps) {
 
     try {
       const result = await reviewService.updateReview(reviewId, {
-        comment: editComment.trim()
+        comment: editComment.trim(),
+        rating: editRating
       });
 
       if (result === 1) {
         setEditingReview(null);
         setEditComment('');
+        setEditRating(5);
         fetchUserReviews(); // Refresh reviews
         alert('Review updated successfully!');
       }
@@ -83,11 +87,13 @@ export default function UserReviews({ userId }: UserReviewsProps) {
   const startEditing = (review: Review) => {
     setEditingReview(review.review_id);
     setEditComment(review.comment);
+    setEditRating(review.rating || 5);
   };
 
   const cancelEditing = () => {
     setEditingReview(null);
     setEditComment('');
+    setEditRating(5);
   };
 
   const formatDate = (dateString: string) => {
@@ -155,9 +161,12 @@ export default function UserReviews({ userId }: UserReviewsProps) {
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-500 mb-2">
-                      Reviewed on {formatDate(review.created_at)}
-                    </p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <StarRating rating={review.rating} readonly size="sm" />
+                      <span className="text-sm text-gray-500">
+                        Reviewed on {formatDate(review.created_at)}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex gap-2 ml-4">
                     <button
@@ -179,6 +188,16 @@ export default function UserReviews({ userId }: UserReviewsProps) {
 
                 {editingReview === review.review_id ? (
                   <div className="mt-3">
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Rating
+                      </label>
+                      <StarRating
+                        rating={editRating}
+                        onRatingChange={setEditRating}
+                        size="md"
+                      />
+                    </div>
                     <textarea
                       value={editComment}
                       onChange={(e) => setEditComment(e.target.value)}

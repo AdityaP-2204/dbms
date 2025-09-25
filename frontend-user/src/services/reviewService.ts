@@ -49,6 +49,18 @@ class ReviewService {
     return response.data;
   }
 
+  // Get product rating statistics
+  async getProductRatingStats(productId: string): Promise<any> {
+    const response = await axios.get(`${BASE_URL}/api/v1/review/stats?product_id=${productId}`);
+    return response.data;
+  }
+
+  // Get all products with their ratings
+  async getAllProductsWithRatings(): Promise<any[]> {
+    const response = await axios.get(`${BASE_URL}/api/v1/review/products-with-ratings`);
+    return response.data;
+  }
+
   // Delete a review
   async deleteReview(reviewId: number): Promise<number> {
     const response = await axios.delete(`${BASE_URL}/api/v1/review?review_id=${reviewId}`);

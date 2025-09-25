@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -38,11 +39,19 @@ public class ReviewService {
         return reviewDao.getReviewById(review_id);
     }
 
-    public int updateReview(Integer review_id, String comment) {
-        return reviewDao.updateReview(review_id, comment);
+    public int updateReview(Integer review_id, String comment, Integer rating) {
+        return reviewDao.updateReview(review_id, comment, rating);
     }
 
     public int deleteReview(Integer review_id) {
         return reviewDao.deleteReview(review_id);
+    }
+
+    public Map<String, Object> getProductRatingStats(UUID product_id) {
+        return reviewDao.getProductRatingStats(product_id);
+    }
+
+    public List<Map<String, Object>> getAllProductsWithRatings() {
+        return reviewDao.getAllProductsWithRatings();
     }
 }
