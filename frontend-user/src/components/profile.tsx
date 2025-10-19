@@ -13,6 +13,7 @@ import UserReviews from "./userReviews";
 
 export default function Profile() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
     name: "Unnamed User",
@@ -24,6 +25,8 @@ export default function Profile() {
 
   useEffect(() => {
     const storedId = localStorage.getItem("id");
+    const storedRole = localStorage.getItem("role");
+    setRole(storedRole);
     setUserId(storedId);
   }, []);
 
@@ -250,7 +253,7 @@ export default function Profile() {
       </div>
 
       {/* User Reviews Section */}
-      {userId && <UserReviews userId={userId} />}
+      {userId && role!=="admin" && <UserReviews userId={userId} />}
     </div>
   );
 }

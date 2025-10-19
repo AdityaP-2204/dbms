@@ -12,6 +12,7 @@ import Cart from "./components/cart";
 import Wishlist from "./components/wishlist";
 import FAQ from "./components/faq";
 import Community from "./components/community";
+import SubjectListing from "./components/subjectListing";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/" element={<ProductListing />} />
 
         <Route path="/courses" element={<CourseListing />} />
+         <Route path="/subjects" element={<SubjectListing />} />
         <Route path="/faculty" element={<FacultyListing />} />
 
         <Route path="/product/:id" element={<ProductDetails />} />

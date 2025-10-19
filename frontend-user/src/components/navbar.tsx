@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [role,setRole]=useState<string | null>(null);
 
   useEffect(() => {
     const storedId = localStorage.getItem("id");
+    const storedRole=localStorage.getItem("role");
     setUserId(storedId);
+    setRole(storedRole);
   }, []);
 
   return (
@@ -22,6 +25,9 @@ export default function Navbar() {
           <Link to="/courses" className="cursor-pointer hover:text-indigo-600 transition">
             Courses
           </Link>
+           <Link to="/subjects" className="cursor-pointer hover:text-indigo-600 transition">
+            Subjects
+          </Link>
           <Link to="/faculty" className="cursor-pointer hover:text-indigo-600 transition">
             Faculty
           </Link>
@@ -31,20 +37,27 @@ export default function Navbar() {
           <Link to="/community" className="cursor-pointer hover:text-indigo-600 transition">
             Community Channel
           </Link>
+          {
+            role!=="admin"  &&  userId && (
+              <>
+               <Link to="/wishlist" className="cursor-pointer hover:text-indigo-600 transition">
+                Wishlist
+                </Link>
+                <Link to="/cart" className="cursor-pointer hover:text-indigo-600 transition">
+                  Cart
+                </Link>
+              </>
+            )
+          }
           {userId ? (
             // Profile Section if logged in
             <>
-              <Link to="/wishlist" className="cursor-pointer hover:text-indigo-600 transition">
-                Wishlist
-              </Link>
-              <Link to="/cart" className="cursor-pointer hover:text-indigo-600 transition">
-                Cart
-              </Link>
               <Link to="/profile" className="cursor-pointer hover:text-indigo-600 transition">
                 Profile
               </Link>
               <button className="cursor-pointer hover:text-indigo-600 transition" onClick={()=>{
                 localStorage.removeItem("id");
+                localStorage.removeItem("role");
               }} >Sign Out</button>
             </>
           ) : (

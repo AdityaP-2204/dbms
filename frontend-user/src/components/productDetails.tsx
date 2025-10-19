@@ -47,34 +47,178 @@ interface JoinedProduct {
   reviews: Review[];
 }
 
+interface Subject {
+  id: string;
+  subject_name: string;
+}
+
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<JoinedProduct>();
+
+  const [product, setProduct] = useState<JoinedProduct | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+
+  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+  const [selectedSubjects, setSelectedSubjects] = useState<Record<string, boolean>>({});
+
+  const [allFaculties, setAllFaculties] = useState<Faculty[]>([]);
+  const [selectedFaculties, setSelectedFaculties] = useState<Record<string, boolean>>({});
+
+  const [newVariant, setNewVariant] = useState<Partial<Variant>>({
+    attempt: "",
+    price: 0,
+    validity: "",
+    delivery_mode: "",
+    availability: false,
+    variant_image: "",
+  });
+
+  const [showSubjectPanel, setShowSubjectPanel] = useState(false);
+  const [showFacultyPanel, setShowFacultyPanel] = useState(false);
+  const [showVariantForm, setShowVariantForm] = useState(false);
+
+  // fetch product (extracted so we can call it after updates)
+  const fetchProduct = async () => {
+    try {
+      const resp = await axios.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
+      setProduct(resp.data);
+      // set default selected variant to first
+      if (resp.data?.variants?.length) setSelectedVariant(resp.data.variants[0]);
+      else setSelectedVariant(null);
+    } catch (err) {
+      console.error("Failed to fetch product", err);
+    }
+  };
 
   useEffect(() => {
     const storedId = localStorage.getItem("id");
+    const storedRole = localStorage.getItem("role");
     setUserId(storedId);
+    setRole(storedRole);
   }, []);
 
   useEffect(() => {
-    async function getDetails() {
-      const response = await axios.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
-      setProduct(response.data);
-    }
-    getDetails();
+    fetchProduct();
   }, [id]);
 
-  // State to manage the selected variant
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
-
+  // load master lists only for admin (or you can load always if preferred)
   useEffect(() => {
-    if (product?.variants.length) setSelectedVariant(product.variants[0]);
-  }, [product]);
+    if (role === "admin") {
+      axios.get("http://localhost:8080/api/subject").then((res) => {
+        setAllSubjects(res.data || []);
+        // reset selection map
+        const map: Record<string, boolean> = {};
+        (res.data || []).forEach((s: Subject) => (map[s.id] = false));
+        setSelectedSubjects(map);
+      }).catch(() => {});
+      axios.get("http://localhost:8080/api/faculty").then((res) => {
+        setAllFaculties(res.data || []);
+        const map: Record<string, boolean> = {};
+        (res.data || []).forEach((f: Faculty) => (map[f.id] = false));
+        setSelectedFaculties(map);
+      }).catch(() => {});
+    }
+  }, [role]);
 
-  if (!product)
-    return <div className="p-10 text-center text-lg">Product not found</div>;
+  // Helpers to get selected ids as arrays
+  const getSelectedSubjectIds = () =>
+    Object.entries(selectedSubjects).filter(([, v]) => v).map(([k]) => k);
+  const getSelectedFacultyIds = () =>
+    Object.entries(selectedFaculties).filter(([, v]) => v).map(([k]) => k);
+
+  // Add subjects one by one (POST many) and refresh product
+  const handleAddSubjects = async () => {
+    const ids = getSelectedSubjectIds();
+    if (!ids.length) return alert("Select at least one subject to add.");
+    try {
+      // send requests in parallel
+      await Promise.all(
+        ids.map((subjectId) =>
+          axios.post("http://localhost:8080/api/productSubject", {
+            // include both keys in case backend expects sproduct_id or product_id
+            product_id: id,
+            sproduct_id: id,
+            subject_id: subjectId,
+          })
+        )
+      );
+      alert("Subjects added successfully");
+      setShowSubjectPanel(false);
+      // clear selections
+      const cleared: Record<string, boolean> = {};
+      allSubjects.forEach((s) => (cleared[s.id] = false));
+      setSelectedSubjects(cleared);
+      await fetchProduct();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add subjects. See console.");
+    }
+  };
+
+  // Add faculties and refresh
+  const handleAddFaculties = async () => {
+    const ids = getSelectedFacultyIds();
+    if (!ids.length) return alert("Select at least one faculty to add.");
+    try {
+      await Promise.all(
+        ids.map((facultyId) =>
+          axios.post("http://localhost:8080/api/productFaculty", {
+            product_id: id,
+            faculty_id: facultyId,
+          })
+        )
+      );
+      alert("Faculties added successfully");
+      setShowFacultyPanel(false);
+      const cleared: Record<string, boolean> = {};
+      allFaculties.forEach((f) => (cleared[f.id] = false));
+      setSelectedFaculties(cleared);
+      await fetchProduct();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add faculties. See console.");
+    }
+  };
+
+  // Add variant and refresh
+  const handleAddVariant = async () => {
+    // basic validation
+    if (!newVariant.attempt || !newVariant.delivery_mode || !newVariant.price) {
+      return alert("Please fill attempt, delivery mode and price.");
+    }
+    try {
+      const payload = {
+        attempt: newVariant.attempt,
+        price: Number(newVariant.price),
+        validity: newVariant.validity || "",
+        delivery_mode: newVariant.delivery_mode,
+        availability: !!newVariant.availability,
+        variant_image: newVariant.variant_image || "",
+        product_id: id,
+      };
+      await axios.post("http://localhost:8080/api/variant", payload);
+      alert("Variant added successfully");
+      setShowVariantForm(false);
+      setNewVariant({
+        attempt: "",
+        price: 0,
+        validity: "",
+        delivery_mode: "",
+        availability: false,
+        variant_image: "",
+      });
+      await fetchProduct();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add variant. See console.");
+    }
+  };
+
+  if (!product) return <div className="p-10 text-center text-lg">Product not found</div>;
 
   return (
     <div className="max-w-6xl mx-auto pt-28 px-6 pb-16">
@@ -86,7 +230,7 @@ export default function ProductDetails() {
       </button>
 
       <div className="flex flex-col md:flex-row gap-12 bg-white rounded-xl shadow-xl p-8">
-        {/* Image Section */}
+        {/* Image */}
         <div className="md:w-1/3 flex-shrink-0">
           <img
             src={product.product_image}
@@ -118,22 +262,204 @@ export default function ProductDetails() {
 
           <p className="text-gray-600 text-lg leading-relaxed">{product.description}</p>
           <p className="text-gray-500 font-medium">
-            Course:{" "}
-            <span className="text-indigo-600 font-bold">{product.course_name}</span>
+            Course: <span className="text-indigo-600 font-bold">{product.course_name}</span>
           </p>
 
-          {/* Variants Section */}
+          {/* Admin action buttons */}
+          {role === "admin" && (
+            <div className="flex flex-wrap gap-4 mt-4">
+              <button
+                onClick={() => setShowVariantForm((s) => !s)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+              >
+                + Add Variant
+              </button>
+              <button
+                onClick={() => setShowSubjectPanel((s) => !s)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+              >
+                + Add Subject
+              </button>
+              <button
+                onClick={() => setShowFacultyPanel((s) => !s)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+              >
+                + Add Faculty
+              </button>
+            </div>
+          )}
+
+          {/* Variant form (admin) */}
+          {showVariantForm && (
+            <div className="bg-gray-50 p-6 rounded-lg border mt-4">
+              <h3 className="font-bold text-xl text-gray-800 mb-4">Add New Variant</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="Attempt"
+                  className="border p-2 rounded"
+                  value={newVariant.attempt}
+                  onChange={(e) => setNewVariant({ ...newVariant, attempt: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Price"
+                  className="border p-2 rounded"
+                  value={newVariant.price ?? ""}
+                  onChange={(e) => setNewVariant({ ...newVariant, price: Number(e.target.value) })}
+                />
+                <input
+                  type="text"
+                  placeholder="Validity (string)"
+                  className="border p-2 rounded"
+                  value={newVariant.validity}
+                  onChange={(e) => setNewVariant({ ...newVariant, validity: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Delivery Mode"
+                  className="border p-2 rounded"
+                  value={newVariant.delivery_mode}
+                  onChange={(e) => setNewVariant({ ...newVariant, delivery_mode: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Variant Image URL"
+                  className="border p-2 rounded"
+                  value={newVariant.variant_image}
+                  onChange={(e) => setNewVariant({ ...newVariant, variant_image: e.target.value })}
+                />
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!newVariant.availability}
+                    onChange={(e) => setNewVariant({ ...newVariant, availability: e.target.checked })}
+                  />
+                  Available
+                </label>
+              </div>
+              <button
+                onClick={handleAddVariant}
+                className="mt-4 mr-5 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+              >
+                Submit Variant
+              </button>
+              <button
+                onClick={() => {
+                  // Clear form and close it
+                  setNewVariant({
+                    attempt: "",
+                    price: 0,
+                    validity: "",
+                    delivery_mode: "",
+                    availability: false,
+                    variant_image: "",
+                  });
+                  setShowVariantForm(false);
+                }}
+                className="bg-gray-200 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300"
+              >
+                Cancel
+      </button>
+            </div>
+          )}
+
+          {/* Subject panel (admin) - checkbox based multi-select */}
+          {showSubjectPanel && (
+            <div className="bg-gray-50 p-6 rounded-lg border mt-4">
+              <h3 className="font-bold text-xl text-gray-800 mb-4">Add Subjects</h3>
+              <div className="max-h-48 overflow-auto p-2 border rounded">
+                {allSubjects.length === 0 && <div className="text-gray-500">No subjects available</div>}
+                {allSubjects.map((s) => (
+                  <label key={s.id} className="flex items-center gap-3 p-2">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedSubjects[s.id]}
+                      onChange={(e) =>
+                        setSelectedSubjects((prev) => ({ ...prev, [s.id]: e.target.checked }))
+                      }
+                    />
+                    <span className="text-sm">{s.subject_name}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-3 mt-3">
+                <button
+                  onClick={handleAddSubjects}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+                >
+                  Add Selected Subjects
+                </button>
+                <button
+                  onClick={() => {
+                    // clear and close
+                    const cleared: Record<string, boolean> = {};
+                    allSubjects.forEach((s) => (cleared[s.id] = false));
+                    setSelectedSubjects(cleared);
+                    setShowSubjectPanel(false);
+                  }}
+                  className="bg-gray-200 px-4 py-2 rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Faculty panel (admin) - checkbox based multi-select */}
+          {showFacultyPanel && (
+            <div className="bg-gray-50 p-6 rounded-lg border mt-4">
+              <h3 className="font-bold text-xl text-gray-800 mb-4">Add Faculties</h3>
+              <div className="max-h-48 overflow-auto p-2 border rounded">
+                {allFaculties.length === 0 && <div className="text-gray-500">No faculties available</div>}
+                {allFaculties.map((f) => (
+                  <label key={f.id} className="flex items-center gap-3 p-2">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedFaculties[f.id]}
+                      onChange={(e) =>
+                        setSelectedFaculties((prev) => ({ ...prev, [f.id]: e.target.checked }))
+                      }
+                    />
+                    <div>
+                      <div className="text-sm font-medium">{f.name}</div>
+                      <div className="text-xs text-gray-500">{f.description}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-3 mt-3">
+                <button
+                  onClick={handleAddFaculties}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+                >
+                  Add Selected Faculties
+                </button>
+                <button
+                  onClick={() => {
+                    const cleared: Record<string, boolean> = {};
+                    allFaculties.forEach((f) => (cleared[f.id] = false));
+                    setSelectedFaculties(cleared);
+                    setShowFacultyPanel(false);
+                  }}
+                  className="bg-gray-200 px-4 py-2 rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Variants section (unchanged look) */}
           {product.variants.length > 0 && (
             <div className="bg-gray-50 p-6 rounded-lg border">
               <h3 className="font-bold text-xl text-gray-800 mb-4">Choose a Mode</h3>
               <div className="flex flex-col gap-4">
                 {product.variants.map((variant) => (
                   <label
-                    key={variant.delivery_mode}
+                    key={variant.id}
                     className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all border-2 ${
-                      selectedVariant?.delivery_mode === variant.delivery_mode
-                        ? "border-indigo-500 bg-indigo-50"
-                        : "border-gray-200 hover:bg-gray-100"
+                      selectedVariant?.id === variant.id ? "border-indigo-500 bg-indigo-50" : "border-gray-200 hover:bg-gray-100"
                     }`}
                   >
                     <div className="flex items-center gap-4">
@@ -141,57 +467,56 @@ export default function ProductDetails() {
                         type="radio"
                         name="product-mode"
                         value={variant.delivery_mode}
-                        checked={selectedVariant?.delivery_mode === variant.delivery_mode}
+                        checked={selectedVariant?.id === variant.id}
                         onChange={() => setSelectedVariant(variant)}
                         className="form-radio text-indigo-600 h-5 w-5"
                       />
                       <div>
                         <span className="font-semibold text-gray-800">{variant.delivery_mode}</span>
-                        <p className="text-sm text-gray-500">{variant.attempt}</p>
+                        <p className="text-sm text-gray-500">Attempt-{variant.attempt}</p>
                       </div>
                     </div>
                     <span className="font-bold text-lg text-indigo-600">₹{variant.price}</span>
                   </label>
                 ))}
               </div>
+              {
+                role !== "admin" && selectedVariant && (
+                  <div className="flex gap-4 mt-6">
+                    <button
+                      onClick={() => {
+                        if (!userId) return alert("Please sign in to add to Wishlist.");
+                        selectedVariant &&
+                          navigate("/wishlist", { state: { product, variant: selectedVariant } });
+                      }}
+                      disabled={!userId}
+                      className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
+                        userId ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      Add to Wishlist
+                    </button>
 
-              <div className="flex gap-4 mt-6">
-                <button
-                  onClick={() => {
-                    if (!userId) return alert("Please sign in to add to Wishlist.");
-                    selectedVariant &&
-                      navigate("/wishlist", { state: { product, variant: selectedVariant } });
-                  }}
-                  disabled={!userId}
-                  className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
-                    userId
-                      ? "bg-indigo-600 hover:bg-indigo-700"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  Add to Wishlist
-                </button>
-
-                <button
-                  onClick={() => {
-                    if (!userId) return alert("Please sign in to add to Cart.");
-                    selectedVariant &&
-                      navigate("/cart", { state: { product, variant: selectedVariant } });
-                  }}
-                  disabled={!userId}
-                  className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
-                    userId
-                      ? "bg-indigo-600 hover:bg-indigo-700"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  Add to Cart
-                </button>
-              </div>
+                    <button
+                      onClick={() => {
+                        if (!userId) return alert("Please sign in to add to Cart.");
+                        selectedVariant &&
+                          navigate("/cart", { state: { product, variant: selectedVariant } });
+                      }}
+                      disabled={!userId}
+                      className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
+                        userId ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                )
+              }
             </div>
           )}
 
-          {/* Subjects and Faculties */}
+          {/* Subjects & Faculties lists */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             {product.subjects.length > 0 && (
               <div>
@@ -210,10 +535,9 @@ export default function ProductDetails() {
                 <h4 className="font-bold text-gray-800 text-lg mb-2">Faculty</h4>
                 <ul className="list-inside text-gray-600 space-y-1">
                   {product.faculties.map((f, idx) => (
-                    <li key={idx}>
+                    <li key={f.id || idx}>
                       <span className="text-sm">
-                        • {f.name} -{" "}
-                        <span className="text-gray-500 text-xs">{f.description}</span>
+                        • {f.name} - <span className="text-gray-500 text-xs">{f.description}</span>
                       </span>
                     </li>
                   ))}
@@ -222,11 +546,8 @@ export default function ProductDetails() {
             )}
           </div>
 
-          {/* Reviews Section */}
-          <ReviewSection 
-            productId={product.id.toString()} 
-            userId={userId} 
-          />
+          {/* Reviews: always visible; control Add Review inside ReviewSection */}
+          <ReviewSection productId={product.id.toString()} userId={userId} hideAddReview={role === "admin"} />
         </div>
       </div>
     </div>

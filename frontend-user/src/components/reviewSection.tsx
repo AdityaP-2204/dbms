@@ -7,9 +7,10 @@ import type { Review, User } from '../types';
 interface ReviewSectionProps {
   productId: string;
   userId: string | null;
+  hideAddReview?: boolean;
 }
 
-export default function ReviewSection({ productId, userId }: ReviewSectionProps) {
+export default function ReviewSection({ productId, userId, hideAddReview }: ReviewSectionProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [users, setUsers] = useState<{ [key: string]: User }>({});
   const [loading, setLoading] = useState(true);
@@ -156,7 +157,7 @@ export default function ReviewSection({ productId, userId }: ReviewSectionProps)
         <h4 className="font-bold text-gray-800 text-xl">
           Reviews ({reviews.length})
         </h4>
-        {userId && (
+        {userId && !hideAddReview && (
           <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
