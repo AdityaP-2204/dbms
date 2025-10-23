@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Mail, MapPin, PlusCircle } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import axiosInstance from "../api/axiosConfig";
 
 interface Faculty {
   id?: string;
@@ -26,13 +28,14 @@ export default function FacultyListing() {
     institute_name: "",
   });
 
-  const role = localStorage.getItem("role");
+  const user= useAuth();
+  const role=user?.role;
 
   // Fetch faculty list
   useEffect(() => {
     async function getFaculty() {
       try {
-        const response = await axios.get<Faculty[]>(
+        const response = await axiosInstance.get<Faculty[]>(
           "http://localhost:8080/api/faculty"
         );
         setFaculties(response.data);
@@ -49,7 +52,7 @@ export default function FacultyListing() {
   const handleAddFaculty = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/faculty", newFaculty);
+      const response = await axiosInstance.post("http://localhost:8080/api/faculty", newFaculty);
       setFaculties([...faculties, response.data]); // update UI dynamically
       setShowForm(false);
       setNewFaculty({

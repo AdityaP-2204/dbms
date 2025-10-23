@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -12,16 +13,14 @@ export default function SignIn() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await axios.get("http://localhost:8080/api/v1/user", {
-        params: {
-          email: email,
-          password: password,
-          role: role,
-        },
+      const response = await axiosInstance.post("http://localhost:8080/api/auth/login", {
+        email,
+        password,
+        role
       });
       console.log(response.data);
-      localStorage.setItem("id", response.data.id);
-      localStorage.setItem("role", role);
+      // localStorage.setItem("id", response.data.id);
+      // localStorage.setItem("role", role);
       navigate("/");
     } catch (error) {
       console.error("Error fetching data:", error);

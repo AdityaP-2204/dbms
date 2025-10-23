@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import axios from "axios";
 import { PlusCircle } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import axiosInstance from "../api/axiosConfig";
 
 interface Course {
   id?: string;
@@ -18,12 +20,13 @@ export default function CourseListing() {
     course_description: "",
   });
 
-  const role = localStorage.getItem("role");
+  const user= useAuth();
+  const role=user?.role;
 
   useEffect(() => {
     async function getCourses() {
       try {
-        const response = await axios.get<Course[]>(
+        const response = await axiosInstance.get<Course[]>(
           "http://localhost:8080/api/course"
         );
         setCourses(response.data);
@@ -40,8 +43,8 @@ export default function CourseListing() {
   const handleAddCourse = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/course", newCourse);
-      setCourses([...courses, response.data]); // update list instantly
+      const response = await axiosInstance.post("http://localhost:8080/api/course", newCourse);
+      setCourses([...courses, response.data]); 
       setShowForm(false);
       setNewCourse({ course_name: "", course_description: "" });
     } catch (err) {

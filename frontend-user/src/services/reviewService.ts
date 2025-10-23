@@ -1,5 +1,6 @@
 // services/reviewService.ts - Review API service
 import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import type { Review, ReviewFormData, UpdateReviewData, User } from '../types';
 
 const BASE_URL = 'http://localhost:8080';
@@ -31,7 +32,7 @@ class ReviewService {
 
   // Create a new review
   async createReview(reviewData: ReviewFormData): Promise<number> {
-    const response = await axios.post(`${BASE_URL}/api/v1/review`, reviewData, {
+    const response = await axiosInstance.post(`${BASE_URL}/api/v1/review`, reviewData, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -41,7 +42,7 @@ class ReviewService {
 
   // Update a review
   async updateReview(reviewId: number, updateData: UpdateReviewData): Promise<number> {
-    const response = await axios.put(`${BASE_URL}/api/v1/review?review_id=${reviewId}`, updateData, {
+    const response = await axiosInstance.put(`${BASE_URL}/api/v1/review?review_id=${reviewId}`, updateData, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -63,7 +64,7 @@ class ReviewService {
 
   // Delete a review
   async deleteReview(reviewId: number): Promise<number> {
-    const response = await axios.delete(`${BASE_URL}/api/v1/review?review_id=${reviewId}`);
+    const response = await axiosInstance.delete(`${BASE_URL}/api/v1/review?review_id=${reviewId}`);
     return response.data;
   }
 

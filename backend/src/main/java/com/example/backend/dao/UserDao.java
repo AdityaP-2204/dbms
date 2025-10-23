@@ -18,4 +18,5 @@ public interface UserDao {
     User getUserById(UUID id);
     int updateUser(UUID id, String name, String email, String phone_number, String address);
     int deleteUser(UUID id);
+    public User getUserByEmail(String email);
 }
