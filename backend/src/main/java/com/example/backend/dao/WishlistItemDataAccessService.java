@@ -1,6 +1,5 @@
 package com.example.backend.dao;
 
-import com.example.backend.model.CartItem;
 import com.example.backend.model.WishlistItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -52,7 +51,7 @@ public class WishlistItemDataAccessService implements WishlistDao{
     }
 
     @Override
-    public int deleteWishlistItembyId(UUID id) {
+    public int deleteWishlistItemById(UUID id) {
         final String sql = "DELETE FROM wishlist_item WHERE id=?";
         return jdbcTemplate.update(sql, id);
     }
