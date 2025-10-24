@@ -1,4 +1,22 @@
-## Review API Endpoints
+## API Endpoints
+
+### Validate Coupon (Primary Endpoint)
+http
+POST /api/v1/coupon/validate?code={couponCode}&cartTotal={amount}
+
+*Parameters:*
+- code (String) - Coupon code to validate
+- cartTotal (Double) - Current cart total amount
+
+*Response:*
+json
+{
+  "valid": true,
+  "message": "Coupon applied successfully!",
+  "discountAmount": 200.0,
+  "finalPrice": 1800.0
+}
+
 **Base URL** - http://localhost:8080/api/v1/review
 ---
 ### Endpoints
