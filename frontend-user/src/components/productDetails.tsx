@@ -3,6 +3,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReviewSection from "./reviewSection";
+import { useAuth } from "../hooks/useAuth";
+import axiosInstance from "../api/axiosConfig";
 
 interface Faculty {
   id: string;
@@ -84,7 +86,7 @@ export default function ProductDetails() {
   // fetch product (extracted so we can call it after updates)
   const fetchProduct = async () => {
     try {
-      const resp = await axios.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
+      const resp = await axiosInstance.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
       setProduct(resp.data);
       // set default selected variant to first
       if (resp.data?.variants?.length) setSelectedVariant(resp.data.variants[0]);
@@ -94,12 +96,11 @@ export default function ProductDetails() {
     }
   };
 
+  const user= useAuth();
   useEffect(() => {
-    const storedId = localStorage.getItem("id");
-    const storedRole = localStorage.getItem("role");
-    setUserId(storedId);
-    setRole(storedRole);
-  }, []);
+    setRole(user?.role || null);
+    setUserId(user?.id || null);
+  }, [user]); 
 
   useEffect(() => {
     fetchProduct();
@@ -108,14 +109,14 @@ export default function ProductDetails() {
   // load master lists only for admin (or you can load always if preferred)
   useEffect(() => {
     if (role === "admin") {
-      axios.get("http://localhost:8080/api/subject").then((res) => {
+      axiosInstance.get("http://localhost:8080/api/subject").then((res) => {
         setAllSubjects(res.data || []);
         // reset selection map
         const map: Record<string, boolean> = {};
         (res.data || []).forEach((s: Subject) => (map[s.id] = false));
         setSelectedSubjects(map);
       }).catch(() => {});
-      axios.get("http://localhost:8080/api/faculty").then((res) => {
+      axiosInstance.get("http://localhost:8080/api/faculty").then((res) => {
         setAllFaculties(res.data || []);
         const map: Record<string, boolean> = {};
         (res.data || []).forEach((f: Faculty) => (map[f.id] = false));
@@ -138,7 +139,7 @@ export default function ProductDetails() {
       // send requests in parallel
       await Promise.all(
         ids.map((subjectId) =>
-          axios.post("http://localhost:8080/api/productSubject", {
+          axiosInstance.post("http://localhost:8080/api/productSubject", {
             // include both keys in case backend expects sproduct_id or product_id
             product_id: id,
             sproduct_id: id,
@@ -166,7 +167,7 @@ export default function ProductDetails() {
     try {
       await Promise.all(
         ids.map((facultyId) =>
-          axios.post("http://localhost:8080/api/productFaculty", {
+          axiosInstance.post("http://localhost:8080/api/productFaculty", {
             product_id: id,
             faculty_id: facultyId,
           })
@@ -200,7 +201,7 @@ export default function ProductDetails() {
         variant_image: newVariant.variant_image || "",
         product_id: id,
       };
-      await axios.post("http://localhost:8080/api/variant", payload);
+      await axiosInstance.post("http://localhost:8080/api/variant", payload);
       alert("Variant added successfully");
       setShowVariantForm(false);
       setNewVariant({

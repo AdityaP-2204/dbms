@@ -1,18 +1,23 @@
 // src/components/Navbar.tsx
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 
 export default function Navbar() {
   const [userId, setUserId] = useState<string | null>(null);
   const [role,setRole]=useState<string | null>(null);
 
+  const user= useAuth();
   useEffect(() => {
-    const storedId = localStorage.getItem("id");
-    const storedRole=localStorage.getItem("role");
-    setUserId(storedId);
-    setRole(storedRole);
-  }, []);
+    setRole(user?.role || null);
+    setUserId(user?.id || null);
+  }, [user]);
 
+  const handleSignOut =async () => {
+    await axiosInstance.post("http://localhost:8080/api/auth/logout");
+  }
   return (
     <nav className="w-full bg-white shadow-md fixed top-0 left-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -56,8 +61,7 @@ export default function Navbar() {
                 Profile
               </Link>
               <button className="cursor-pointer hover:text-indigo-600 transition" onClick={()=>{
-                localStorage.removeItem("id");
-                localStorage.removeItem("role");
+                handleSignOut();
               }} >Sign Out</button>
             </>
           ) : (

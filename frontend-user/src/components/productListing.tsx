@@ -2,7 +2,8 @@
 import ProductCard from "./product-card";
 import { useState, useEffect } from "react";
 import axios from "axios";
-
+import { useAuth } from "../hooks/useAuth";
+import axiosInstance from "../api/axiosConfig";
 interface Faculty {
   id: string;
   name: string;
@@ -64,15 +65,16 @@ export default function ProductListing() {
     is_combo: false,
   });
 
-  const role = localStorage.getItem("role");
+  const user= useAuth();
+  const role=user?.role;
 
   // Fetch all products and courses
   useEffect(() => {
     async function fetchData() {
       try {
         const [productResponse, courseResponse] = await Promise.all([
-          axios.get("http://localhost:8080/api/joinedProduct"),
-          axios.get("http://localhost:8080/api/course"),
+          axiosInstance.get("http://localhost:8080/api/joinedProduct"),
+          axiosInstance.get("http://localhost:8080/api/course"),
         ]);
 
         const products = productResponse.data;
@@ -127,7 +129,7 @@ const handleAddProduct = async (e: React.FormEvent) => {
 
     console.log("Payload being sent:", payload);
 
-    await axios.post("http://localhost:8080/api/product", payload, {
+    await axiosInstance.post("http://localhost:8080/api/product", payload, {
       headers: { "Content-Type": "application/json" },
     });
 
@@ -144,7 +146,7 @@ const handleAddProduct = async (e: React.FormEvent) => {
     setSelectedCourses([]);
 
     // Refresh products
-    const refreshed = await axios.get("http://localhost:8080/api/joinedProduct");
+    const refreshed = await axiosInstance.get("http://localhost:8080/api/joinedProduct");
     setJoinedProducts(refreshed.data);
   } catch (err: any) {
     console.error("Error adding product:", err);

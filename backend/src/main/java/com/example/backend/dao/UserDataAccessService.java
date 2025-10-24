@@ -85,4 +85,25 @@ public class UserDataAccessService implements UserDao {
         final String sql = "DELETE FROM users WHERE id=?";
         return jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT * FROM users WHERE email=?",
+                    new Object[]{email},
+                    (rs, rowNum) -> new User(
+                            UUID.fromString(rs.getString("id")),
+                            rs.getString("name"),
+                            rs.getString("email"),
+                            rs.getString("password"),
+                            rs.getString("role"),
+                            rs.getString("phone_number"),
+                            rs.getString("address")
+                    )
+            );
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return null; // no user found
+        }
+    }
 }

@@ -78,13 +78,13 @@ export default function ProductCard(product: JoinedProduct) {
             <div className="flex items-center gap-1">
               <span className="text-yellow-400">★</span>
               <span>
-                {product.rating.toFixed(1)} ({product.total_reviews} review{product.total_reviews !== 1 ? 's' : ''})
+                {product.rating.toFixed(1)} ({product.total_reviews})
               </span>
             </div>
           ) : (
             <div className="flex items-center gap-1">
               <span className="text-gray-400">★</span>
-              <span className="text-gray-400">No reviews yet</span>
+              <span className="text-gray-400">(0)</span>
             </div>
           )}
           <div className="flex items-center gap-1">

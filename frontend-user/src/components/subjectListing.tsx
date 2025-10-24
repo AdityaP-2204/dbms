@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { PlusCircle } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import axiosInstance from "../api/axiosConfig";
 
 interface Subject {
   id?: string;
@@ -18,12 +20,13 @@ export default function SubjectListing() {
     subject_description: "",
   });
 
-  const role = localStorage.getItem("role");
+  const user= useAuth();
+  const role=user?.role;
 
   useEffect(() => {
     async function getsubjects() {
       try {
-        const response = await axios.get<Subject[]>(
+        const response = await axiosInstance.get<Subject[]>(
           "http://localhost:8080/api/subject"
         );
         setsubjects(response.data);
@@ -40,7 +43,7 @@ export default function SubjectListing() {
   const handleAddsubject = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/subject", newsubject);
+      const response = await axiosInstance.post("http://localhost:8080/api/subject", newsubject);
       setsubjects([...subjects, response.data]); // update list instantly
       setShowForm(false);
       setNewsubject({ subject_name: "", subject_description: "" });

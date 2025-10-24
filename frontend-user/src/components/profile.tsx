@@ -10,6 +10,8 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import UserReviews from "./userReviews";
+import { useAuth } from "../hooks/useAuth";
+import axiosInstance from "../api/axiosConfig";
 
 export default function Profile() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -23,18 +25,17 @@ export default function Profile() {
   });
   const [editData, setEditData] = useState(profile);
 
+   const user= useAuth();
   useEffect(() => {
-    const storedId = localStorage.getItem("id");
-    const storedRole = localStorage.getItem("role");
-    setRole(storedRole);
-    setUserId(storedId);
-  }, []);
+    setRole(user?.role || null);
+    setUserId(user?.id || null);
+  }, [user]); 
 
   useEffect(() => {
     async function getProfile() {
       if (!userId) return;
       try {
-        const response = await axios.get("http://localhost:8080/api/v1/user", {
+        const response = await axiosInstance.get("http://localhost:8080/api/v1/user", {
           params: { id: userId },
         });
         const data = response?.data;
@@ -65,7 +66,7 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       if (!userId) return;
-      await axios.put(
+      await axiosInstance.put(
         `http://localhost:8080/api/v1/user?id=${userId}`,
         {
           name: editData.name,
