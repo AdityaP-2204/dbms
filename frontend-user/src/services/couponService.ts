@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 
 const API_BASE_URL = 'http://localhost:8080/api/v1/coupon';
 
@@ -11,7 +11,7 @@ export interface CouponValidationResult {
 
 export const validateCoupon = async (code: string, cartTotal: number): Promise<CouponValidationResult> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/validate`, null, {
+    const response = await axiosInstance.post(`${API_BASE_URL}/validate`, null, {
       params: {
         code: code,
         cartTotal: cartTotal
