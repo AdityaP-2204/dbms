@@ -34,7 +34,7 @@ export interface Variant {
 
 export interface Product {
   id: string;
-  title: string;
+  product_title: string;
   description: string;
   product_image: string;
   product_type: string;

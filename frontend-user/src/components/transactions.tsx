@@ -229,50 +229,29 @@ export default function Transactions() {
                           key={item.order_item_id}
                           className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
                         >
-                          <div className="flex items-start gap-4">
+                          <div className="flex items-center gap-4">
                             {/* Product Image */}
                             {item.product && (
                               <img
                                 src={item.product.product_image}
-                                alt={item.product.title}
-                                className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                alt={item.product.product_title}
+                                className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                               />
                             )}
                             
-                            {/* Product Details */}
+                            {/* Product Name and Details */}
                             <div className="flex-1">
                               {item.product && (
-                                <div>
-                                  <h4 className="font-semibold text-gray-900 mb-1">
-                                    {item.product.title}
-                                  </h4>
-                                  <p className="text-sm text-gray-600 mb-2">
-                                    {item.product.description.length > 80
-                                      ? `${item.product.description.substring(0, 80)}...`
-                                      : item.product.description}
-                                  </p>
-                                </div>
+                                <h4 className="font-semibold text-gray-900 mb-2">
+                                  {item.product.product_title}
+                                </h4>
                               )}
                               
-                              {item.variant && (
-                                <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-2">
-                                  <span className="bg-gray-100 px-2 py-1 rounded">
-                                    {item.variant.attempt}
-                                  </span>
-                                  <span className="bg-gray-100 px-2 py-1 rounded">
-                                    {item.variant.delivery_mode}
-                                  </span>
-                                  <span className="bg-gray-100 px-2 py-1 rounded">
-                                    Validity: {item.variant.validity}
-                                  </span>
-                                </div>
-                              )}
-                              
-                              <div className="flex items-center gap-4 text-sm">
-                                <span className="text-gray-700">
+                              <div className="flex items-center gap-4 text-sm text-gray-700">
+                                <span>
                                   Qty: <span className="font-semibold">{item.quantity}</span>
                                 </span>
-                                <span className="text-gray-700">
+                                <span>
                                   Price: <span className="font-semibold">₹{item.price.toFixed(2)}</span>
                                 </span>
                               </div>
