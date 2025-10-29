@@ -1,7 +1,9 @@
+// src/pages/Community.tsx
 import { useState, useEffect } from "react";
 import { FaUserCircle, FaPlus } from "react-icons/fa";
 import axiosInstance from "../api/axiosConfig";
 import { useAuth } from "../hooks/useAuth";
+import QueryCard from "../components/QueryCard"; // ✅ imported new component
 
 interface Query {
   id: string;
@@ -17,61 +19,32 @@ interface User {
   role: string;
 }
 
-
-
 export default function Community() {
-  const [user, setUser] = useState<User | null>(null); // logged-in user
-  const [userId, setUserId] = useState<string | null>(null); // logged-in user
+  const [user, setUser] = useState<User | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [queries, setQueries] = useState<Query[]>([]);
   const [newQuestion, setNewQuestion] = useState("");
-  // const [userId, setUserId] = useState<string | null>(null);
 
-  // Fetch logged-in user and queries on mount
-  useEffect(() => {
-    // fetchCurrentUser();
-    if(userId === null)
-    fetchQueries();
-  }, [userId]);
+  const userauth = useAuth();
 
-  const userauth= useAuth();
   useEffect(() => {
-    if(userauth) setUser(userauth);
+    if (userauth) setUser(userauth);
     setUserId(userauth?.id || null);
-  }, [userauth]); 
+  }, [userauth]);
 
-  useEffect(()=>{
-    console.log(userId);
-  }, [userId])
-
-  // const fetchCurrentUser = async () => {
-  //   try {
-  //     const res = await axiosInstance.get("http://localhost:8080/auth/me"); // backend returns logged-in user info
-  //     setUser(res.data);
-  //   } catch (err) {
-  //     console.error("Not logged in or failed to fetch user", err);
-  //     setUser(null);
-  //   }
-  // };
-
-  
+  useEffect(() => {
+    if (userId === null) fetchQueries();
+  }, [userId]);
 
   const fetchQueries = async () => {
     try {
       const res = await axiosInstance.get("http://localhost:8080/api/queries");
-      console.log(res.data);
-      
-      // const formatted = res.data.map(async(q: any) => {
-      //   const askedby = await axiosInstance.get(`http://localhost:8080/api/v1/user?id=${q.userId}`);
-      //   return {
-      //   id: q.id,
-      //   user_id: askedby.data.name,
-      //   question: q.message,
-      //   created_at: q.createdAt,
-      // }
-      // });
+
       const formatted = await Promise.all(
         res.data.map(async (q: any) => {
-          const askedby = await axiosInstance.get(`http://localhost:8080/api/v1/user?id=${q.userId}`);
+          const askedby = await axiosInstance.get(
+            `http://localhost:8080/api/v1/user?id=${q.userId}`
+          );
           return {
             id: q.id,
             user_id: q.userId,
@@ -100,15 +73,14 @@ export default function Community() {
         userId: userId,
         subject: "General",
         message: newQuestion,
-        // userId removed; backend will get it from session cookie
       };
 
       const res = await axiosInstance.post("http://localhost:8080/api/queries", payload);
       const created = res.data;
-      console.log(res.data);
+
       const formatted: Query = {
         id: created.id,
-        user_id: created.userId, // backend sets this from session
+        user_id: created.userId,
         user_name: "You",
         question: created.message,
         created_at: created.createdAt,
@@ -118,13 +90,15 @@ export default function Community() {
       setNewQuestion("");
     } catch (err) {
       console.error("Error posting query:", err);
-      alert("Failed to post your question. Check console for details.");
+      alert("Failed to post your question.");
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 pt-20">
-      <h1 className="text-4xl font-extrabold mb-8 text-slate-800 tracking-tight">Community Q&A</h1>
+      <h1 className="text-4xl font-extrabold mb-8 text-slate-800 tracking-tight">
+        Community Q&A
+      </h1>
 
       {/* Ask Question */}
       <div className="mb-10 p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
@@ -158,18 +132,7 @@ export default function Community() {
       {/* Queries List */}
       <div className="space-y-8">
         {queries.map((q) => (
-          <div key={q.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex items-start gap-4 mb-4">
-              <FaUserCircle className="text-slate-500 text-2xl" />
-              <div className="flex-1">
-                <p className="font-semibold text-base text-slate-800">
-                  {q.user_id === user?.id ? "You" : `User: ${q.user_name}`}
-                </p>
-                <p className="text-lg text-slate-700 mt-1">{q.question}</p>
-                <p className="text-sm text-slate-400 mt-1">{new Date(q.created_at).toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
+          <QueryCard key={q.id} query={q} currentUserId={user?.id || null} />
         ))}
       </div>
     </div>
