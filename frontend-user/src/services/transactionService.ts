@@ -41,6 +41,14 @@ export interface Product {
   is_combo: boolean;
 }
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+// ✅ Fetch all transactions for a specific user
 export const getTransactionsByUserId = async (userId: string): Promise<Transaction[]> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/transaction`, {
@@ -53,6 +61,20 @@ export const getTransactionsByUserId = async (userId: string): Promise<Transacti
   }
 };
 
+// ✅ Fetch all transactions (for admin)
+export const getAllTransactions = async (): Promise<Transaction[]> => {
+  try {
+    
+    const response = await axiosInstance.get(`${API_BASE_URL}/transaction`);
+    console.log("yogesh here",response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all transactions:', error);
+    throw error;
+  }
+};
+
+// ✅ Fetch all order items by transaction ID
 export const getOrdersByTransactionId = async (transactionId: string): Promise<OrderItem[]> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/orders`, {
@@ -65,6 +87,7 @@ export const getOrdersByTransactionId = async (transactionId: string): Promise<O
   }
 };
 
+// ✅ Fetch variant details by ID
 export const getVariantById = async (variantId: string): Promise<Variant> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/variant`, {
@@ -77,6 +100,7 @@ export const getVariantById = async (variantId: string): Promise<Variant> => {
   }
 };
 
+// ✅ Fetch product details by ID
 export const getProductById = async (productId: string): Promise<Product> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/product`, {
@@ -85,6 +109,19 @@ export const getProductById = async (productId: string): Promise<Product> => {
     return response.data;
   } catch (error) {
     console.error('Error fetching product:', error);
+    throw error;
+  }
+};
+
+// ✅ NEW: Fetch user details by ID (to get email for each transaction)
+export const getUserById = async (userId: string): Promise<User> => {
+  try {
+    const response = await axiosInstance.get(`${API_BASE_URL}/v1/user`, {
+      params: { id: userId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user:', error);
     throw error;
   }
 };
