@@ -4,7 +4,17 @@ import type { CartItemProps } from './cart';
 import axiosInstance from '../api/axiosConfig';
 import { Trash2 } from 'lucide-react'; // Optional icon
 
-export default function CartItem({ id, user_id, variant_id, added_at, quantity }: CartItemProps) {
+export default function CartItem({ item: {
+  id,
+  user_id,
+  variant_id,
+  added_at,
+  quantity
+}, setCartItems
+}: {
+  item: CartItemProps,
+  setCartItems?: React.Dispatch<React.SetStateAction<CartItemProps[]>>
+}) {
   const [product, setProduct] = useState<JoinedProduct | null>(null);
   const [variant, setVariant] = useState<Variant | null>(null);
   const [qty, setQty] = useState<number>(quantity);
@@ -29,13 +39,16 @@ export default function CartItem({ id, user_id, variant_id, added_at, quantity }
 
   // Update cart quantity
   const updateQuantity = async (newQty: number) => {
-    if (newQty < 1){
+    if (newQty < 1) {
       deleteCartItem();
       return;
     }  // prevent 0 or negative
     try {
       await axiosInstance.put(`http://localhost:8080/api/cart?id=${id}&quantity=${newQty - qty}`);
       setQty(newQty);
+      if(setCartItems) {
+        setCartItems(prevItems => prevItems.map(item => item.id === id ? { ...item, quantity: newQty } : item));
+      }
     } catch (error) {
       console.error("Error updating quantity:", error);
     }
@@ -45,8 +58,9 @@ export default function CartItem({ id, user_id, variant_id, added_at, quantity }
   const deleteCartItem = async () => {
     try {
       await axiosInstance.delete(`http://localhost:8080/api/cart?id=${id}`);
-      setProduct(null);
-      setVariant(null);
+      if (setCartItems) {
+        setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+      }
       alert("Item removed from cart");
     } catch (error) {
       console.error("Error deleting cart item:", error);
