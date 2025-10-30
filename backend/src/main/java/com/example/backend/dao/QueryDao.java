@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface QueryDao {
-    void insertQuery(Query query);
+    void insertQuery(UUID id,Query query);
+
+    default void insertQuery(Query query){
+        UUID uuid = UUID.randomUUID();
+        insertQuery(uuid,query);
+    }
 
     Query getQueryById(UUID id);
 
