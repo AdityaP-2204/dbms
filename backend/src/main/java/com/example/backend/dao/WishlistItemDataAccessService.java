@@ -1,6 +1,5 @@
 package com.example.backend.dao;
 
-import com.example.backend.model.CartItem;
 import com.example.backend.model.WishlistItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,7 +29,7 @@ public class WishlistItemDataAccessService implements WishlistDao{
 
     @Override
     public int insertWishlistItem(UUID id, WishlistItem wishlistItem) {
-        final String sql = "INSERT INTO wishlist_item (id, user_id, variant_id) VALUES (?,?,?,?)";
+        final String sql = "INSERT INTO wishlist_item (id, user_id, variant_id) VALUES (?,?,?)";
         return jdbcTemplate.update(sql, id, wishlistItem.getUser_id(), wishlistItem.getVariant_id());
     }
 
@@ -52,7 +51,7 @@ public class WishlistItemDataAccessService implements WishlistDao{
     }
 
     @Override
-    public int deleteWishlistItembyId(UUID id) {
+    public int deleteWishlistItemById(UUID id) {
         final String sql = "DELETE FROM wishlist_item WHERE id=?";
         return jdbcTemplate.update(sql, id);
     }

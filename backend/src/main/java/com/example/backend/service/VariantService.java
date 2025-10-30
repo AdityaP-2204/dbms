@@ -19,6 +19,9 @@ public class VariantService {
     public List<Variant> getAllVariantsByProductId(UUID productId) {
         return variantDao.getAllVariantsByProductId(productId);
     }
+    public Variant getVariantById(UUID id) {
+        return variantDao.getVariantById(id);
+    }
     public List<Variant> getAllVariants() {
         return variantDao.getAllVariants();
     }

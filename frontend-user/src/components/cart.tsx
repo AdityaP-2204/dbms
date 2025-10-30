@@ -1,9 +1,11 @@
 // Cart.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CartItem from "./cartItem";
 import { validateCoupon } from "../services/couponService";
 import type { CouponValidationResult } from "../services/couponService";
+import axiosInstance from "../api/axiosConfig";
+import { useAuth } from "../hooks/useAuth";
 
 interface Variant {
   id: string;
@@ -16,19 +18,37 @@ interface Variant {
   product_id: string;
 }
 
-export default function Cart() {
-  const location = useLocation();
-  const navigate = useNavigate();
+export interface CartItemProps {
+  id: string;
+  user_id: string;
+  variant_id: string;
+  added_at: string;
+  quantity: number;
+}
 
-  const product = location.state?.product;
-  const variant: Variant | null = location.state?.variant || null;
+
+export default function Cart() {
+  // const location = useLocation();
+  const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState<CartItemProps[]>([]);
+
+  // const product = location.state?.product;
+  // const variant: Variant | null = location.state?.variant || null;
 
   const [couponCode, setCouponCode] = useState("");
   const [couponResult, setCouponResult] = useState<CouponValidationResult | null>(null);
   const [isApplying, setIsApplying] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [cartTotal, setCartTotal] = useState<number>(0);
+  // const cartTotal = variant ? variant.price : 0;
 
-  const cartTotal = variant ? variant.price : 0;
+  const user = useAuth();
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    if (user) {
+      setUserId(user.id);
+    }
+  }, [user]);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -68,21 +88,52 @@ export default function Cart() {
 
   const displayTotal = couponResult?.valid ? couponResult.finalTotal : cartTotal;
   const discount = couponResult?.valid ? couponResult.discount : 0;
+  async function fetchCartItems() {
+    if (!userId) return;
+    const res = await axiosInstance.get(`http://localhost:8080/api/cart?userId=${userId}`);
+    const data = res.data;
+
+    setCartItems(data);
+
+  }
+  useEffect(() => {
+    fetchCartItems();
+  }, [userId])
+
+  useEffect(() => {
+    // Calculate cart total
+    const calcTotal = async () => {
+      let total = 0;
+      for (const item of cartItems) {
+        try {
+          const variantRes = await axiosInstance.get(`http://localhost:8080/api/variant?id=${item.variant_id}`);
+          const variantData = variantRes.data;
+          total += variantData.price * item.quantity;
+        } catch (error) {
+          console.error("Error fetching variant for cart total calculation:", error);
+        }
+      }
+      setCartTotal(total);
+    };
+    calcTotal();
+  }, [cartItems]);
 
   return (
     <div className="max-w-4xl mx-auto pt-28 px-6 pb-16">
       <h2 className="text-3xl font-extrabold text-gray-900 mb-6">Your Cart</h2>
 
-      {!variant || !product ? (
+      {cartItems.length === 0 ? (
         <p className="text-gray-600">Your cart is empty.</p>
       ) : (
         <>
-          <CartItem product={product} variant={variant} />
+          {cartItems.map((item) => (
+            <CartItem key={item.id} {...item}/>
+          ))}
 
           {/* Coupon Section */}
           <div className="mt-6 p-4 border rounded-lg bg-gray-50">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Apply Coupon</h3>
-            
+
             {!appliedCoupon ? (
               <div className="flex gap-2">
                 <input
@@ -120,11 +171,10 @@ export default function Cart() {
 
             {/* Coupon Status Message */}
             {couponResult && !appliedCoupon && (
-              <div className={`mt-3 p-3 rounded-lg ${
-                couponResult.valid 
-                  ? "bg-green-50 border border-green-200 text-green-800" 
-                  : "bg-red-50 border border-red-200 text-red-800"
-              }`}>
+              <div className={`mt-3 p-3 rounded-lg ${couponResult.valid
+                ? "bg-green-50 border border-green-200 text-green-800"
+                : "bg-red-50 border border-red-200 text-red-800"
+                }`}>
                 <div className="flex items-center gap-2">
                   {couponResult.valid ? (
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -144,20 +194,20 @@ export default function Cart() {
           {/* Price Summary */}
           <div className="mt-6 p-4 border rounded-lg bg-white">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Price Details</h3>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between text-gray-700">
                 <span>Subtotal:</span>
                 <span>₹{cartTotal.toFixed(2)}</span>
               </div>
-              
+
               {discount > 0 && (
                 <div className="flex justify-between text-green-600 font-medium">
                   <span>Discount:</span>
                   <span>- ₹{discount.toFixed(2)}</span>
                 </div>
               )}
-              
+
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total:</span>
@@ -182,7 +232,7 @@ export default function Cart() {
         >
           ← Back
         </button>
-        {variant && (
+        {cartItems.length > 0 && (
           <button
             className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
           >

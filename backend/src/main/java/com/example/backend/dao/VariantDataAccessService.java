@@ -61,4 +61,19 @@ public class VariantDataAccessService implements VariantDao {
                 UUID.fromString(rs.getString("product_id"))
         ));
     }
+
+    @Override
+    public Variant getVariantById(UUID id) {
+        final String sql = "SELECT * FROM variant WHERE id=?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, i) -> new Variant(
+                UUID.fromString(rs.getString("id")),
+                rs.getString("attempt"),
+                rs.getInt("price"),
+                rs.getString("variant_image"),
+                rs.getString("delivery_mode"),
+                rs.getBoolean("availability"),
+                rs.getString("validity"),
+                UUID.fromString(rs.getString("product_id"))
+        ));
+    }
 }

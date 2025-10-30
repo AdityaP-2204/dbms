@@ -14,5 +14,5 @@ public interface WishlistDao {
     }
     List<WishlistItem> getAllWishlistItemsByUserId(UUID user_id);
     Optional<WishlistItem> getWishlistItemByUserAndVariant(UUID user_id, UUID variant_id);
-    int deleteWishlistItembyId(UUID id);
+    int deleteWishlistItemById(UUID id);
 }

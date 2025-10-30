@@ -29,8 +29,13 @@ public class VariantController {
         return variantService.getAllVariants();
     }
 
+    @GetMapping(params = "id")
+    public Variant getVariantById(@RequestParam UUID id){
+        return variantService.getVariantById(id);
+    }
+
     @GetMapping(params="productId")
-    public List<Variant> getVariantById(@RequestParam UUID productId){
+    public List<Variant> getAllVariantsByProductId(@RequestParam UUID productId){
         return variantService.getAllVariantsByProductId(productId);
     }
 

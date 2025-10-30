@@ -19,14 +19,13 @@ public class QueryController {
     }
 
     @PostMapping
-    public ResponseEntity<Query> createQuery(@RequestBody Query query) {
+    public ResponseEntity<Void> createQuery(@RequestBody Query query) {
         if (query.getUserId() == null || query.getSubject() == null || query.getMessage() == null) {
             return ResponseEntity.badRequest().build();
         }
-        Query created = queryService.createQuery(query);
-        return ResponseEntity.ok(created);
+        queryService.createQuery(query);
+        return ResponseEntity.ok().build();
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<Query> getQuery(@PathVariable UUID id) {
         Query query = queryService.getQuery(id);

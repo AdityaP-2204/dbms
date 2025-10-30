@@ -14,18 +14,19 @@ import java.util.UUID;
 @Repository("postgresCartItem")
 public class CartItemDataAccessService implements CartItemDao {
     private final JdbcTemplate jdbcTemplate;
+
     @Autowired
     public CartItemDataAccessService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     private final RowMapper<CartItem> rowMapper = (rs, i) -> {
         return new CartItem(
                 UUID.fromString(rs.getString("id")),
                 UUID.fromString(rs.getString("user_id")),
                 UUID.fromString(rs.getString("variant_id")),
                 rs.getInt("quantity"),
-                rs.getTimestamp("added_at")
-        );
+                rs.getTimestamp("added_at"));
     };
 
     @Override
@@ -55,15 +56,16 @@ public class CartItemDataAccessService implements CartItemDao {
     public int updateCartItemQuantityById(UUID id, int quant) {
         final String sql = "SELECT * FROM cart_item WHERE id=?";
         try {
-            CartItem item = jdbcTemplate.queryForObject(sql, rowMapper,id);
-            if(item != null){
-                if((quant + item.getQuantity()) == 0){
+            CartItem item = jdbcTemplate.queryForObject(sql, rowMapper, id);
+            if (item != null) {
+                if ((quant + item.getQuantity()) <= 0) {
                     return deleteCartItemById(id);
-                }else{
+                } else {
                     final String sql2 = "UPDATE cart_item SET quantity=? WHERE id=?";
-                    return jdbcTemplate.update(sql2, id, item.getQuantity() + quant);
+                    return jdbcTemplate.update(sql2, item.getQuantity() + quant, id);
                 }
-            }else return 0;
+            } else
+                return 0;
         } catch (EmptyResultDataAccessException e) {
             return 0;
         }

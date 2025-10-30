@@ -55,6 +55,8 @@ interface Subject {
 }
 
 export default function ProductDetails() {
+  const [selectedVariantAddedToWishlist, setSelectedVariantAddedToWishlist] = useState(false);
+  const [selectedVariantAddedToCart, setSelectedVariantAddedToCart] = useState(false);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -89,12 +91,31 @@ export default function ProductDetails() {
       const resp = await axiosInstance.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
       setProduct(resp.data);
       // set default selected variant to first
-      if (resp.data?.variants?.length) setSelectedVariant(resp.data.variants[0]);
-      else setSelectedVariant(null);
+      if (resp.data?.variants?.length) {
+        setSelectedVariant(resp.data.variants[0]);
+        const res = await axiosInstance.get(`http://localhost:8080/api/wishlist?userId=${userId}&variantId=${resp.data.variants[0].id}`);
+        if(res.data.id){
+          console.log("Wishlist check response:", res.data.id);
+          setSelectedVariantAddedToWishlist(true);
+        } else {
+          setSelectedVariant(null);
+        }
+        const res1 = await axiosInstance.get(`http://localhost:8080/api/cart?userId=${userId}&variantId=${resp.data.variants[0].id}`);
+        if(res1.data.id){
+          console.log("Cart check response:", res1.data.id);
+          setSelectedVariantAddedToCart(true);
+        } else {
+          setSelectedVariantAddedToCart(false);
+        }
+      }
     } catch (err) {
       console.error("Failed to fetch product", err);
     }
   };
+
+  useEffect(() => {
+    console.log("Wishlist status changed:", selectedVariantAddedToWishlist);
+  }, [selectedVariantAddedToWishlist]);
 
   const user= useAuth();
   useEffect(() => {
@@ -103,8 +124,8 @@ export default function ProductDetails() {
   }, [user]); 
 
   useEffect(() => {
-    fetchProduct();
-  }, [id]);
+    if(id && userId) fetchProduct();
+  }, [id, userId]);
 
   // load master lists only for admin (or you can load always if preferred)
   useEffect(() => {
@@ -234,7 +255,7 @@ export default function ProductDetails() {
         {/* Image */}
         <div className="md:w-1/3 flex-shrink-0">
           <img
-            src={product.product_image}
+            src={product.product_image || "https://via.placeholder.com/300x200.png?text=No+Image"}
             alt={product.title}
             className="w-full rounded-lg shadow-lg aspect-[4/3] object-cover"
           />
@@ -469,7 +490,21 @@ export default function ProductDetails() {
                         name="product-mode"
                         value={variant.delivery_mode}
                         checked={selectedVariant?.id === variant.id}
-                        onChange={() => setSelectedVariant(variant)}
+                        onChange={async () =>{ 
+                          setSelectedVariant(variant)
+                          const res = await axiosInstance.get(`http://localhost:8080/api/wishlist?userId=${userId}&variantId=${variant.id}`);
+                          if(res.data.id){
+                            setSelectedVariantAddedToWishlist(true);
+                          } else {
+                            setSelectedVariantAddedToWishlist(false);
+                          }
+                          const res1 = await axiosInstance.get(`http://localhost:8080/api/cart?userId=${userId}&variantId=${variant.id}`);
+                          if(res1.data.id){
+                            setSelectedVariantAddedToCart(true);
+                          } else {
+                            setSelectedVariantAddedToCart(false);
+                          }
+                        }}
                         className="form-radio text-indigo-600 h-5 w-5"
                       />
                       <div>
@@ -485,28 +520,52 @@ export default function ProductDetails() {
                 role !== "admin" && selectedVariant && (
                   <div className="flex gap-4 mt-6">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (!userId) return alert("Please sign in to add to Wishlist.");
-                        selectedVariant &&
-                          navigate("/wishlist", { state: { product, variant: selectedVariant } });
+                        if (selectedVariant) {
+                          console.log("Adding to wishlist:", {
+                            user_id: userId,
+                            variant_id: selectedVariant.id
+                          });
+                          const res = await axiosInstance.post(`http://localhost:8080/api/wishlist`, {
+                            user_id: userId,
+                            variant_id: selectedVariant.id
+                          });
+                          if (res.status === 201) {
+                            alert("Added to Wishlist");
+                            setSelectedVariantAddedToWishlist(true);
+                          }
+                        }
                       }}
-                      disabled={!userId}
+                      disabled={(!userId) || (selectedVariantAddedToWishlist)}
                       className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
-                        userId ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400 cursor-not-allowed"
+                        userId && !selectedVariantAddedToWishlist ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer" : "bg-gray-400 cursor-not-allowed"
                       }`}
                     >
                       Add to Wishlist
                     </button>
 
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (!userId) return alert("Please sign in to add to Cart.");
-                        selectedVariant &&
-                          navigate("/cart", { state: { product, variant: selectedVariant } });
+                        if (selectedVariant) {
+                          console.log("Adding to cart:", {
+                            user_id: userId,
+                            variant_id: selectedVariant.id
+                          });
+                          const res = await axiosInstance.post(`http://localhost:8080/api/cart`, {
+                            user_id: userId,
+                            variant_id: selectedVariant.id
+                          });
+                          if (res.status === 201) {
+                            alert("Added to Cart");
+                            setSelectedVariantAddedToCart(true);
+                          }
+                        }
                       }}
-                      disabled={!userId}
+                      disabled={!userId || selectedVariantAddedToCart}
                       className={`flex-1 py-3 text-lg font-bold text-white rounded-lg shadow transition-colors transform hover:scale-105 ${
-                        userId ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400 cursor-not-allowed"
+                        userId && !selectedVariantAddedToCart ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer" : "bg-gray-400 cursor-not-allowed"
                       }`}
                     >
                       Add to Cart

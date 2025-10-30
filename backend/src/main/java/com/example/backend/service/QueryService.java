@@ -17,11 +17,10 @@ public class QueryService {
         this.queryDao = queryDao;
     }
 
-    public Query createQuery(Query query) {
-        query.setId(UUID.randomUUID()); // generate new UUID
-        query.setCreatedAt(LocalDateTime.now()); // set current time
+    public void createQuery(Query query) {
+        // query.setId(UUID.randomUUID()); // generate new UUID
+        // query.setCreatedAt(LocalDateTime.now()); // set current time
         queryDao.insertQuery(query);
-        return query;
     }
 
     public Query getQuery(UUID id) {
