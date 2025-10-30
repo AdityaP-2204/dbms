@@ -27,21 +27,21 @@ public class QueryDataAccessService implements QueryDao {
                     UUID.fromString(rs.getString("id")),
                     rs.getString("subject"),
                     rs.getString("message"),
-                    rs.getTimestamp("created_at").toLocalDateTime(),
-                    UUID.fromString(rs.getString("user_id"))
+                    rs.getTimestamp("createdAt").toLocalDateTime(),
+                    UUID.fromString(rs.getString("userId"))
             );
         }
     }
 
     @Override
-    public void insertQuery(Query query) {
-        String sql = "INSERT INTO queries (id, subject, message, created_at, user_id) VALUES (?, ?, ?, ?, ?)";
+    public void insertQuery(UUID id,Query query) {
+        String sql = "INSERT INTO queries (id, subject, message, createdAt, userId) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
-                query.getId().toString(),
+                id,
                 query.getSubject(),
                 query.getMessage(),
-                Timestamp.valueOf(query.getCreatedAt()),
-                query.getUserId().toString()
+                new Timestamp(System.currentTimeMillis()),
+                query.getUserId()
         );
     }
 

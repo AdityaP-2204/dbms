@@ -24,6 +24,10 @@ public class ResponseService {
         return responseDao.selectAllResponses();
     }
 
+    public List<Response> getResponseByQueryId(UUID queryId) {
+        return responseDao.selectAllResponsesByQueryId(queryId);
+    }
+
     public Response getResponseById(UUID id) {
         return responseDao.selectResponseById(id);
     }
