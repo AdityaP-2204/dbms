@@ -17,6 +17,7 @@ export function useAuth() {
         const res = await axiosInstance.get("http://localhost:8080/api/auth/validate");
         setUser(res.data);
       } catch {
+        // console.log("ya hora hai ye")
         setUser(null);
       }
     };

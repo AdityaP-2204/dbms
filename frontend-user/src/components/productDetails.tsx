@@ -124,7 +124,7 @@ export default function ProductDetails() {
   }, [user]); 
 
   useEffect(() => {
-    if(id && userId) fetchProduct();
+    fetchProduct();
   }, [id, userId]);
 
   // load master lists only for admin (or you can load always if preferred)
