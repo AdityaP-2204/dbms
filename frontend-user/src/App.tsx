@@ -14,6 +14,7 @@ import FAQ from "./components/faq";
 import Community from "./components/community";
 import SubjectListing from "./components/subjectListing";
 import Transactions from "./components/transactions";
+import CouponManagement from "./components/couponManagement";
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/faq" element={<FAQ/>} ></Route>
         <Route path="/community" element={<Community/>} ></Route>
         <Route path="/transactions" element={<Transactions/>} ></Route>
+        <Route path="/coupons" element={<CouponManagement/>} ></Route>
       </Routes>
     </Router>
   );
