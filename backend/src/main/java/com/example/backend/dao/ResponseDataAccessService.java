@@ -19,13 +19,13 @@ public class ResponseDataAccessService implements ResponseDao {
     }
 
     @Override
-    public int insertResponse(Response response) {
-        String sql = "INSERT INTO response (id, message, sent_at, user_id, query_id) VALUES (?, ?, ?, ?, ?)";
+    public int insertResponse(UUID id,Response response) {
+        String sql = "INSERT INTO response (id, message, sentAt, userId, queryId) VALUES (?, ?, ?, ?, ?)";
         return jdbcTemplate.update(
                 sql,
-                response.getId(),
+                id,
                 response.getMessage(),
-                response.getSentAt() != null ? response.getSentAt() : new Timestamp(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis()),
                 response.getUserId(),
                 response.getQueryId()
         );
@@ -35,6 +35,12 @@ public class ResponseDataAccessService implements ResponseDao {
     public List<Response> selectAllResponses() {
         String sql = "SELECT * FROM response";
         return jdbcTemplate.query(sql, (rs, i) -> mapRowToResponse(rs));
+    }
+
+    @Override
+    public List<Response> selectAllResponsesByQueryId(UUID id) {
+        String sql = "SELECT * FROM response WHERE queryId = ?";
+        return jdbcTemplate.query(sql, new Object[]{id}, (rs, i) -> mapRowToResponse(rs));
     }
 
     @Override
@@ -51,7 +57,7 @@ public class ResponseDataAccessService implements ResponseDao {
 
     @Override
     public int updateResponse(UUID id, Response response) {
-        String sql = "UPDATE response SET message = ?, user_id = ?, query_id = ? WHERE id = ?";
+        String sql = "UPDATE response SET message = ?, userId = ?, queryId = ? WHERE id = ?";
         return jdbcTemplate.update(
                 sql,
                 response.getMessage(),
@@ -65,9 +71,9 @@ public class ResponseDataAccessService implements ResponseDao {
         return new Response(
                 (UUID) rs.getObject("id"),
                 rs.getString("message"),
-                rs.getTimestamp("sent_at"),
-                (UUID) rs.getObject("user_id"),
-                (UUID) rs.getObject("query_id")
+                rs.getTimestamp("sentAt"),
+                (UUID) rs.getObject("userId"),
+                (UUID) rs.getObject("queryId")
         );
     }
 }

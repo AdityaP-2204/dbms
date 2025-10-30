@@ -35,8 +35,9 @@ public class QueryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Query>> getAllQueries() {
-        return ResponseEntity.ok(queryService.getAllQueries());
+    public List<Query> getAllQueries() {
+        System.out.println(queryService.getAllQueries());
+        return queryService.getAllQueries();
     }
 
     @DeleteMapping("/{id}")

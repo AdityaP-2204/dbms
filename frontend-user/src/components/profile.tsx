@@ -8,12 +8,15 @@ import {
   FaSave,
   FaTimes,
   FaEnvelope,
+  FaShoppingBag,
 } from "react-icons/fa";
 import UserReviews from "./userReviews";
 import { useAuth } from "../hooks/useAuth";
 import axiosInstance from "../api/axiosConfig";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -161,7 +164,7 @@ export default function Profile() {
             </div>
 
             {/* Edit Button */}
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
               <button
                 onClick={() => setIsEditing(true)}
                 className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition flex items-center justify-center"
@@ -169,6 +172,17 @@ export default function Profile() {
                 <FaEdit className="mr-2" />
                 Edit Profile
               </button>
+              
+              {/* View Transactions Button */}
+              {role !== "admin" && (
+                <button
+                  onClick={() => navigate("/transactions")}
+                  className="w-full py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition flex items-center justify-center"
+                >
+                  <FaShoppingBag className="mr-2" />
+                  View My Transactions
+                </button>
+              )}
             </div>
           </>
         ) : (

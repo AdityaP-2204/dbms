@@ -43,6 +43,13 @@ export default function Navbar() {
             Community Channel
           </Link>
           {
+            role === "admin" && userId && (
+              <Link to="/coupons" className="cursor-pointer hover:text-indigo-600 transition">
+                Manage Coupons
+              </Link>
+            )
+          }
+          {
             role!=="admin"  &&  userId && (
               <>
                <Link to="/wishlist" className="cursor-pointer hover:text-indigo-600 transition">
