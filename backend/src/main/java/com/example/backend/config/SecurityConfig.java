@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/auth/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/user").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/course").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/product").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/subject").permitAll()
@@ -49,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/FAQs").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/review/**").permitAll()
                         // .requestMatchers(HttpMethod.GET, "/api/orders/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/queries").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/responses").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
