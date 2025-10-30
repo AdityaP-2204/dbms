@@ -55,7 +55,7 @@ export default function ProductCard(product: JoinedProduct) {
     >
       <div className="relative w-full aspect-[4/3]">
         <img
-          src={product.product_image}
+          src={product.product_image || "https://via.placeholder.com/300x200.png?text=No+Image"}
           alt={product.title}
           className="absolute inset-0 h-full w-full object-cover"
         />

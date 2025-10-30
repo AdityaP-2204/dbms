@@ -76,17 +76,18 @@ export default function Community() {
       };
 
       const res = await axiosInstance.post("http://localhost:8080/api/queries", payload);
-      const created = res.data;
-
-      const formatted: Query = {
-        id: created.id,
-        user_id: created.userId,
-        user_name: "You",
-        question: created.message,
-        created_at: created.createdAt,
-      };
-
-      setQueries([formatted, ...queries]);
+      console.log(res.data);
+      // const created = res.data;
+      // console.log(created)
+      // const formatted: Query = {
+      //   id: created.id,
+      //   user_id: created.userId,
+      //   user_name: "You",
+      //   question: created.message,
+      //   created_at: created.createdAt,
+      // };
+      fetchQueries();
+      // setQueries(res.data);
       setNewQuestion("");
     } catch (err) {
       console.error("Error posting query:", err);
