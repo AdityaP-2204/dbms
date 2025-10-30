@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
-  getTransactionsByUserId,
+  getAllTransactions,
   getOrdersByTransactionId,
   getVariantById,
   getProductById,
+  getUserById,
   type Transaction,
   type OrderItem,
   type Variant,
@@ -19,10 +21,9 @@ import {
   FaChevronUp,
   FaCalendarAlt,
   FaMoneyBillWave,
-  FaBox,
   FaTruck,
   FaHistory,
-  FaTag,
+  FaUser,
 } from "react-icons/fa";
 
 interface OrderItemWithDetails extends OrderItem {
@@ -30,25 +31,54 @@ interface OrderItemWithDetails extends OrderItem {
   product?: Product;
 }
 
-export default function Transactions() {
+export default function AdminTransactions() {
+  const navigate = useNavigate();
   const user = useAuth();
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [orderItems, setOrderItems] = useState<{ [key: string]: OrderItemWithDetails[] }>({});
+  const [userEmails, setUserEmails] = useState<{ [key: string]: string }>({});
   const [expandedTransaction, setExpandedTransaction] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState<string | null>(null);
 
+  // ✅ Redirect if not admin
   useEffect(() => {
-    const fetchTransactions = async () => {
-      if (!user?.id) return;
+    if (!user) return; // Wait until auth loads
+    if (user.role !== "admin") {
+      navigate("/"); // Redirect non-admin users
+    }
+  }, [user, navigate]);
+
+  // ✅ Fetch all transactions
+  useEffect(() => {
+    const fetchAllTransactions = async () => {
       try {
         setLoading(true);
-        const data = await getTransactionsByUserId(user.id);
+        const data = await getAllTransactions();
         const sortedData = data.sort(
           (a, b) =>
-            new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime()
+            new Date(b.transaction_date).getTime() -
+            new Date(a.transaction_date).getTime()
         );
         setTransactions(sortedData);
+
+        // Preload user emails
+        const userIds = [...new Set(sortedData.map((t) => t.user_id))];
+        const emails: { [key: string]: string } = {};
+
+        await Promise.all(
+          userIds.map(async (id) => {
+            try {
+              const user = await getUserById(id);
+              emails[id] = user.email;
+            } catch {
+              emails[id] = "Unknown User";
+            }
+          })
+        );
+
+        setUserEmails(emails);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
@@ -56,9 +86,10 @@ export default function Transactions() {
       }
     };
 
-    fetchTransactions();
-  }, [user?.id]);
+    if (user?.role === "admin") fetchAllTransactions();
+  }, [user]);
 
+  // ✅ Expand transaction & fetch order details
   const handleToggleTransaction = async (transactionId: string) => {
     if (expandedTransaction === transactionId) {
       setExpandedTransaction(null);
@@ -131,7 +162,8 @@ export default function Transactions() {
     });
   };
 
-  if (loading) {
+  // ✅ Optional loading spinner while verifying role or fetching data
+  if (!user || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -139,27 +171,37 @@ export default function Transactions() {
     );
   }
 
+  // ✅ Prevent rendering for non-admins (quick flash protection)
+  if (user.role !== "admin") {
+    return null;
+  }
+
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <FaShoppingBag className="text-gray-400 mb-4" size={64} />
-        <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Transactions Yet</h2>
-        <p className="text-gray-500">Your transaction history will appear here</p>
+        <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+          No Transactions Found
+        </h2>
+        <p className="text-gray-500">No transactions have been made yet</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 pt-24">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <FaShoppingBag className="text-indigo-600" />
-            My Transactions
+            All Transactions (Admin)
           </h1>
-          <p className="text-gray-600 mt-2">View all your past orders and transactions</p>
+          <p className="text-gray-600 mt-2">
+            View all users’ transactions and their order details
+          </p>
         </div>
 
+        {/* Transaction Cards */}
         <div className="space-y-4">
           {transactions.map((transaction) => (
             <div
@@ -178,6 +220,7 @@ export default function Transactions() {
                         {transaction.transaction_id.slice(0, 8)}...
                       </span>
                     </div>
+
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         <FaCalendarAlt className="text-gray-400" />
@@ -186,6 +229,10 @@ export default function Transactions() {
                       <span className="flex items-center gap-1">
                         <FaMoneyBillWave className="text-gray-400" />
                         ₹{transaction.total_amount.toFixed(2)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FaUser className="text-gray-400" />
+                        {userEmails[transaction.user_id] || "Loading..."}
                       </span>
                     </div>
                   </div>
@@ -217,24 +264,26 @@ export default function Transactions() {
                     </div>
                   ) : orderItems[transaction.transaction_id]?.length > 0 ? (
                     <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Order Items
+                      </h3>
                       {orderItems[transaction.transaction_id].map((item) => (
                         <div
                           key={item.order_item_id}
                           className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start gap-4">
-                            {/* Variant Image */}
                             {item.variant?.variant_image && (
                               <img
                                 src={item.variant.variant_image}
-                                alt={item.product?.product_title || "Variant"}
+                                alt={
+                                  item.product?.product_title || "Variant"
+                                }
                                 className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                               />
                             )}
 
                             <div className="flex-1 space-y-1">
-                              {/* Product Title & Type */}
                               {item.product && (
                                 <>
                                   <h4 className="font-semibold text-gray-900 text-base">
@@ -246,24 +295,35 @@ export default function Transactions() {
                                 </>
                               )}
 
-                              {/* Variant Details */}
                               {item.variant && (
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-sm text-gray-700">
                                   <div className="flex items-center gap-1">
                                     <FaHistory className="text-indigo-500" />
-                                    Attempts: <span className="font-semibold">{item.variant.attempt}</span>
+                                    Attempts:{" "}
+                                    <span className="font-semibold">
+                                      {item.variant.attempt}
+                                    </span>
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <FaMoneyBillWave className="text-green-500" />
-                                    Price: <span className="font-semibold">₹{item.variant.price}</span>
+                                    Price:{" "}
+                                    <span className="font-semibold">
+                                      ₹{item.variant.price}
+                                    </span>
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <FaTruck className="text-blue-500" />
-                                    Delivery: <span className="font-semibold">{item.variant.delivery_mode}</span>
+                                    Delivery:{" "}
+                                    <span className="font-semibold">
+                                      {item.variant.delivery_mode}
+                                    </span>
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <FaCalendarAlt className="text-purple-500" />
-                                    Validity: <span className="font-semibold">{item.variant.validity}</span>
+                                    Validity:{" "}
+                                    <span className="font-semibold">
+                                      {item.variant.validity}
+                                    </span>
                                   </div>
                                 </div>
                               )}
@@ -274,7 +334,9 @@ export default function Transactions() {
 
                       <div className="border-t border-gray-300 pt-3 mt-4">
                         <div className="flex justify-between items-center">
-                          <span className="text-lg font-semibold text-gray-900">Total Amount:</span>
+                          <span className="text-lg font-semibold text-gray-900">
+                            Total Amount:
+                          </span>
                           <span className="text-2xl font-bold text-indigo-600">
                             ₹{transaction.total_amount.toFixed(2)}
                           </span>
