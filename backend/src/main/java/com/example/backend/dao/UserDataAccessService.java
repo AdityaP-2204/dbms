@@ -26,7 +26,7 @@ public class UserDataAccessService implements UserDao {
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getRole(),
+                user.getRole().toLowerCase(), // normalize role to lowercase
                 user.getPhone_number(),
                 user.getAddress()
         );

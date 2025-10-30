@@ -34,8 +34,8 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid email, password or role"));
         }
 
-        // generate JWT
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        // generate JWT - normalize role to lowercase for consistency
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toLowerCase());
 
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
@@ -81,12 +81,12 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "User not found"));
         }
 
-        // Return full user info (except password)
+        // Return full user info (except password) - normalize role to lowercase
         return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "name", user.getName(),
                 "email", user.getEmail(),
-                "role", user.getRole()
+                "role", user.getRole().toLowerCase()
         ));
     }
 
