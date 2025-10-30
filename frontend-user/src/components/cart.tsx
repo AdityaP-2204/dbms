@@ -40,6 +40,7 @@ export default function Cart() {
   const [isApplying, setIsApplying] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [cartTotal, setCartTotal] = useState<number>(0);
+  const [discount, setDiscount] = useState<number>(0);
   // const cartTotal = variant ? variant.price : 0;
 
   const user = useAuth();
@@ -67,6 +68,7 @@ export default function Cart() {
       setCouponResult(result);
       if (result.valid) {
         setAppliedCoupon(couponCode);
+        setDiscount(result.discount);
       }
     } catch (error) {
       setCouponResult({
@@ -84,10 +86,11 @@ export default function Cart() {
     setCouponCode("");
     setCouponResult(null);
     setAppliedCoupon(null);
+    setDiscount(0);
   };
 
-  const displayTotal = couponResult?.valid ? couponResult.finalTotal : cartTotal;
-  const discount = couponResult?.valid ? couponResult.discount : 0;
+  // const displayTotal = couponResult?.valid ? couponResult.finalTotal : cartTotal;
+  // const discount = couponResult?.valid ? couponResult.discount : 0;
   async function fetchCartItems() {
     if (!userId) return;
     const res = await axiosInstance.get(`http://localhost:8080/api/cart?userId=${userId}`);
@@ -115,6 +118,27 @@ export default function Cart() {
       }
       setCartTotal(total);
     };
+    const calcDisc = async () => {
+        if (!appliedCoupon) return;
+        try {
+        const result = await validateCoupon(couponCode, cartTotal);
+        setCouponResult(result);
+        if (result.valid) {
+          setAppliedCoupon(couponCode);
+          setDiscount(result.discount);
+        }
+      } catch (error) {
+        setCouponResult({
+          valid: false,
+          message: "Error validating coupon. Please try again.",
+          discount: 0,
+          finalTotal: cartTotal
+        });
+      } finally {
+        setIsApplying(false);
+      }
+    };
+    calcDisc();
     calcTotal();
   }, [cartItems]);
 
@@ -127,7 +151,7 @@ export default function Cart() {
       ) : (
         <>
           {cartItems.map((item) => (
-            <CartItem key={item.id} {...item}/>
+            <CartItem key={item.id} item={item} setCartItems={setCartItems} />
           ))}
 
           {/* Coupon Section */}
@@ -211,7 +235,7 @@ export default function Cart() {
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total:</span>
-                  <span>₹{displayTotal.toFixed(2)}</span>
+                  <span>₹{(cartTotal - discount).toFixed(2)}</span>
                 </div>
               </div>
             </div>
