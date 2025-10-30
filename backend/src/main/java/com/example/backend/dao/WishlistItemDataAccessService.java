@@ -29,7 +29,7 @@ public class WishlistItemDataAccessService implements WishlistDao{
 
     @Override
     public int insertWishlistItem(UUID id, WishlistItem wishlistItem) {
-        final String sql = "INSERT INTO wishlist_item (id, user_id, variant_id) VALUES (?,?,?,?)";
+        final String sql = "INSERT INTO wishlist_item (id, user_id, variant_id) VALUES (?,?,?)";
         return jdbcTemplate.update(sql, id, wishlistItem.getUser_id(), wishlistItem.getVariant_id());
     }
 

@@ -43,7 +43,7 @@ export interface Variant {
 
 export interface JoinedProduct {
   id: number;
-  title: string;
+  product_title: string;
   description: string;
   course_name: string;
   course_description: string;

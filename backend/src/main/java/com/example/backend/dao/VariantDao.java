@@ -15,5 +15,5 @@ public interface VariantDao {
 
     List<Variant> getAllVariants();
     List<Variant> getAllVariantsByProductId(UUID productId);
-
+    Variant getVariantById(UUID id);
 }

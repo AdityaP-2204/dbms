@@ -1,40 +1,5 @@
 // CartItem.tsx
-interface Faculty {
-  id: string;
-  name: string;
-  description: string;
-  email: string;
-  institute_name: string;
-  profile_image: string;
-}
-
-interface Variant {
-  id: string;
-  attempt: string;
-  price: number;
-  variant_image: string;
-  delivery_mode: string;
-  availability: boolean;
-  validity: string;
-  product_id: string;
-}
-
-interface JoinedProduct {
-  id: number;
-  title: string;
-  description: string;
-  course_name: string;
-  course_description: string;
-  product_type: string;
-  product_image: string;
-  is_combo: boolean;
-  rating: number;
-  total_reviews: number;
-  variants: Variant[];
-  subjects: string[];
-  faculties: Faculty[];
-  reviews: any[];
-}
+import type { Variant, JoinedProduct } from '../types/index';
 
 interface CartItemProps {
   product: JoinedProduct;
