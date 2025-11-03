@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ReviewSection from "./reviewSection";
 import { useAuth } from "../hooks/useAuth";
 import axiosInstance from "../api/axiosConfig";
+import Toast from "./Toast";
 
 interface Faculty {
   id: string;
@@ -84,6 +85,9 @@ export default function ProductDetails() {
   const [showSubjectPanel, setShowSubjectPanel] = useState(false);
   const [showFacultyPanel, setShowFacultyPanel] = useState(false);
   const [showVariantForm, setShowVariantForm] = useState(false);
+
+  // Toast state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // fetch product (extracted so we can call it after updates)
   const fetchProduct = async () => {
@@ -521,7 +525,10 @@ export default function ProductDetails() {
                   <div className="flex gap-4 mt-6">
                     <button
                       onClick={async () => {
-                        if (!userId) return alert("Please sign in to add to Wishlist.");
+                        if (!userId) {
+                          setToastMessage("Please sign in to add to Wishlist.");
+                          return;
+                        }
                         if (selectedVariant) {
                           console.log("Adding to wishlist:", {
                             user_id: userId,
@@ -532,7 +539,7 @@ export default function ProductDetails() {
                             variant_id: selectedVariant.id
                           });
                           if (res.status === 201) {
-                            alert("Added to Wishlist");
+                            setToastMessage("Added to Wishlist!");
                             setSelectedVariantAddedToWishlist(true);
                           }
                         }
@@ -547,7 +554,10 @@ export default function ProductDetails() {
 
                     <button
                       onClick={async () => {
-                        if (!userId) return alert("Please sign in to add to Cart.");
+                        if (!userId) {
+                          setToastMessage("Please sign in to add to Cart.");
+                          return;
+                        }
                         if (selectedVariant) {
                           console.log("Adding to cart:", {
                             user_id: userId,
@@ -558,7 +568,7 @@ export default function ProductDetails() {
                             variant_id: selectedVariant.id
                           });
                           if (res.status === 201) {
-                            alert("Added to Cart");
+                            setToastMessage("Added to Cart!");
                             setSelectedVariantAddedToCart(true);
                           }
                         }
@@ -610,6 +620,14 @@ export default function ProductDetails() {
           <ReviewSection productId={product.id.toString()} userId={userId} hideAddReview={role === "admin"} />
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
     </div>
   );
 }

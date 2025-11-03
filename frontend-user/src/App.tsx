@@ -1,5 +1,6 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./components/landingPage";
 import ProductListing from "../src/components/productListing";
 import ProductDetails from "./components/productDetails";
 import Navbar from "./components/navbar";
@@ -23,7 +24,8 @@ export default function App() {
       <Navbar></Navbar>
       <Routes>
 
-        <Route path="/" element={<ProductListing />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/products" element={<ProductListing />} />
 
         <Route path="/courses" element={<CourseListing />} />
          <Route path="/subjects" element={<SubjectListing />} />
