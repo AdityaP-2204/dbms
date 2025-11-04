@@ -155,7 +155,7 @@ export default function Cart() {
       });
       if(response.status===200){
         alert("Checkout successful!");
-        navigate("/orders");
+        navigate("/transactions");
       }else{
         alert("Checkout failed. Please try again.");
       }
