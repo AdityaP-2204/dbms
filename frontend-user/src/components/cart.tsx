@@ -17,6 +17,7 @@ import {
   FaPercent,
   FaGift,
 } from "react-icons/fa";
+import axios from "axios";
 
 export interface CartItemProps {
   id: string;
@@ -141,6 +142,24 @@ export default function Cart() {
     calcDisc();
     calcTotal();
   }, [cartItems]);
+
+  async function handleCheckout() {
+      const response=await axiosInstance.post("http://localhost:8080/api/checkout",{
+          userId:userId,
+          email:user?.email,
+          name:user?.name,
+          couponCode: appliedCoupon,
+          items: cartItems,
+          totalAmount: cartTotal,
+          discount: discount
+      });
+      if(response.status===200){
+        alert("Checkout successful!");
+        navigate("/orders");
+      }else{
+        alert("Checkout failed. Please try again.");
+      }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pt-20 pb-16">
@@ -317,8 +336,9 @@ export default function Cart() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="mt-6 space-y-3">
+                  <div  className="mt-6 space-y-3">
                     <button
+                      onClick={handleCheckout}
                       className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
                     >
                       Proceed to Checkout

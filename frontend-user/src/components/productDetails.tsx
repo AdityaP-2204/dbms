@@ -129,7 +129,7 @@ export default function ProductDetails() {
 
   useEffect(() => {
     fetchProduct();
-  }, [id, userId]);
+  }, []);
 
   // load master lists only for admin (or you can load always if preferred)
   useEffect(() => {

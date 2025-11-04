@@ -1,6 +1,20 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dbms292@gmail.com
+    password: "zioc yvqp kuuc jwbm"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 app:
   datasource:
     jdbc-url: jdbc:postgresql://localhost:5432/dbms
     username: postgres
     password: password
     pool-size: 30
+  admin:
+    email: jamwalmansi16@gmail.com
