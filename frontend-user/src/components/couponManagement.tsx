@@ -480,7 +480,7 @@ export default function CouponManagement() {
                   ACTIVE
                 </div>
               ) : (
-                <div className="absolute top-4 right-4 bg-gray-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                <div className="absolute top-4 right-4 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
                   INACTIVE
                 </div>
               )}

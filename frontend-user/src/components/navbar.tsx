@@ -3,6 +3,16 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import axiosInstance from "../api/axiosConfig";
+import {
+  FaTicketAlt,
+  FaReceipt,
+  FaHeart,
+  FaShoppingCart,
+  FaUser,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUserPlus,
+} from "react-icons/fa";
 
 export default function Navbar() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -16,7 +26,15 @@ export default function Navbar() {
   }, [user]);
 
   const handleSignOut = async () => {
-    await axiosInstance.post("http://localhost:8080/api/auth/logout");
+    try {
+      await axiosInstance.post("http://localhost:8080/api/auth/logout");
+      // Force page reload to update auth state
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Sign out error:", error);
+      // Still reload even if logout fails
+      window.location.href = "/";
+    }
   };
 
   return (
@@ -29,52 +47,23 @@ export default function Navbar() {
           EduHub
         </Link>
 
-        <div className="flex space-x-8 text-gray-700 font-medium">
-          <Link
-            to="/courses"
-            className="cursor-pointer hover:text-indigo-600 transition"
-          >
-            Courses
-          </Link>
-          <Link
-            to="/subjects"
-            className="cursor-pointer hover:text-indigo-600 transition"
-          >
-            Subjects
-          </Link>
-          <Link
-            to="/faculty"
-            className="cursor-pointer hover:text-indigo-600 transition"
-          >
-            Faculty
-          </Link>
-          <Link
-            to="/faq"
-            className="cursor-pointer hover:text-indigo-600 transition"
-          >
-            FAQs
-          </Link>
-          <Link
-            to="/community"
-            className="cursor-pointer hover:text-indigo-600 transition"
-          >
-            Community Channel
-          </Link>
-
+        <div className="flex items-center space-x-6 text-gray-700 font-medium">
           {/* ✅ Show admin-only links */}
           {role === "admin" && userId && (
             <>
               <Link
                 to="/coupons"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Manage Coupons"
               >
-                Manage Coupons
+                <FaTicketAlt className="text-xl" />
               </Link>
               <Link
                 to="/admin/transactions"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Transactions"
               >
-                Transactions
+                <FaReceipt className="text-xl" />
               </Link>
             </>
           )}
@@ -84,15 +73,17 @@ export default function Navbar() {
             <>
               <Link
                 to="/wishlist"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Wishlist"
               >
-                Wishlist
+                <FaHeart className="text-xl" />
               </Link>
               <Link
                 to="/cart"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Cart"
               >
-                Cart
+                <FaShoppingCart className="text-xl" />
               </Link>
             </>
           )}
@@ -102,30 +93,34 @@ export default function Navbar() {
             <>
               <Link
                 to="/profile"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Profile"
               >
-                Profile
+                <FaUser className="text-xl" />
               </Link>
               <button
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
                 onClick={() => handleSignOut()}
+                title="Sign Out"
               >
-                Sign Out
+                <FaSignOutAlt className="text-xl" />
               </button>
             </>
           ) : (
             <>
               <Link
                 to="/signin"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Sign In"
               >
-                Sign In
+                <FaSignInAlt className="text-xl" />
               </Link>
               <Link
                 to="/signup"
-                className="cursor-pointer hover:text-indigo-600 transition"
+                className="cursor-pointer hover:text-indigo-600 transition flex items-center gap-2"
+                title="Sign Up"
               >
-                Sign Up
+                <FaUserPlus className="text-xl" />
               </Link>
             </>
           )}

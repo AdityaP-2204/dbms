@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import {
   FaUser,
@@ -9,6 +8,8 @@ import {
   FaTimes,
   FaEnvelope,
   FaShoppingBag,
+  FaIdCard,
+  FaCheckCircle,
 } from "react-icons/fa";
 import UserReviews from "./userReviews";
 import { useAuth } from "../hooks/useAuth";
@@ -101,174 +102,276 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4 pt-20">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="mt-1 text-gray-500">
-          Manage your personal information and preferences
-        </p>
-      </div>
-
-      {/* Main Profile Card */}
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-xl">
-        {/* User Info Section */}
-        <div className="flex flex-col items-center text-center pb-8 border-b border-gray-200 mb-6">
-          <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg bg-blue-500 text-white flex items-center justify-center text-4xl font-bold">
-            {getInitials(profile.name)}
-          </div>
-          <h2 className="text-2xl font-semibold text-gray-900">
-            {profile.name}
-          </h2>
-          <p className="mt-1 flex items-center text-gray-500">
-            <FaEnvelope className="mr-2" />
-            {profile.email}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-10 px-4 pt-20">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            My Profile
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Manage your personal information and view your activity
           </p>
         </div>
 
-        {!isEditing ? (
-          <>
-            {/* Display Mode */}
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg flex items-center">
-                <FaUser className="text-gray-500 mr-4" size={20} />
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Full Name
-                  </h3>
-                  <p className="text-gray-900 font-semibold">
-                    {profile.name}
-                  </p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Profile Card */}
+          <div className="lg:col-span-1">
+            <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+              {/* Profile Header with Gradient */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
+                <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
+                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                    {getInitials(profile.name)}
+                  </div>
                 </div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg flex items-center">
-                <FaPhone className="text-gray-500 mr-4" size={20} />
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Phone Number
-                  </h3>
-                  <p className="text-gray-900 font-semibold">
-                    {profile.phone_number}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg flex items-center">
-                <FaMapMarkerAlt className="text-gray-500 mr-4" size={20} />
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Address</h3>
-                  <p className="text-gray-900 font-semibold">
-                    {profile.address}
-                  </p>
+
+              {/* Profile Info */}
+              <div className="pt-20 pb-6 px-6 text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                  {profile.name}
+                </h2>
+                <p className="text-gray-500 flex items-center justify-center gap-2 mb-4">
+                  <FaEnvelope className="text-sm" />
+                  <span className="text-sm">{profile.email}</span>
+                </p>
+                
+                {role && (
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                    <FaCheckCircle />
+                    {role === "admin" ? "Administrator" : "Student"}
+                  </div>
+                )}
+
+                {/* Quick Actions */}
+                <div className="space-y-3 mt-6">
+                  {!isEditing ? (
+                    <>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 font-semibold"
+                      >
+                        <FaEdit />
+                        Edit Profile
+                      </button>
+                      
+                      {role !== "admin" && (
+                        <button
+                          onClick={() => navigate("/transactions")}
+                          className="w-full py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-xl shadow-md hover:shadow-lg hover:bg-blue-50 transition-all duration-300 flex items-center justify-center gap-2 font-semibold"
+                        >
+                          <FaShoppingBag />
+                          My Transactions
+                        </button>
+                      )}
+                    </>
+                  ) : null}
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Edit Button */}
-            <div className="mt-8 space-y-3">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition flex items-center justify-center"
-              >
-                <FaEdit className="mr-2" />
-                Edit Profile
-              </button>
-              
-              {/* View Transactions Button */}
-              {role !== "admin" && (
-                <button
-                  onClick={() => navigate("/transactions")}
-                  className="w-full py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition flex items-center justify-center"
-                >
-                  <FaShoppingBag className="mr-2" />
-                  View My Transactions
-                </button>
+          {/* Right Column - Details & Edit Form */}
+          <div className="lg:col-span-2">
+            <div className="bg-white shadow-xl rounded-2xl p-8">
+              {!isEditing ? (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <FaIdCard className="text-blue-600" />
+                      Personal Information
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Full Name Card */}
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 hover:shadow-lg transition-shadow duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FaUser className="text-white text-xl" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-blue-900 mb-1 uppercase tracking-wide">
+                            Full Name
+                          </h4>
+                          <p className="text-gray-900 font-semibold text-lg">
+                            {profile.name}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Email Card */}
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 hover:shadow-lg transition-shadow duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FaEnvelope className="text-white text-xl" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-purple-900 mb-1 uppercase tracking-wide">
+                            Email Address
+                          </h4>
+                          <p className="text-gray-900 font-semibold text-lg break-all">
+                            {profile.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Phone Card */}
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 hover:shadow-lg transition-shadow duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FaPhone className="text-white text-xl" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-green-900 mb-1 uppercase tracking-wide">
+                            Phone Number
+                          </h4>
+                          <p className="text-gray-900 font-semibold text-lg">
+                            {profile.phone_number}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Address Card */}
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200 hover:shadow-lg transition-shadow duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FaMapMarkerAlt className="text-white text-xl" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-orange-900 mb-1 uppercase tracking-wide">
+                            Address
+                          </h4>
+                          <p className="text-gray-900 font-semibold text-lg">
+                            {profile.address}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Edit Mode */}
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <FaEdit className="text-blue-600" />
+                      Edit Information
+                    </h3>
+                  </div>
+
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Full Name
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaUser className="text-gray-400" />
+                        </div>
+                        <input
+                          type="text"
+                          name="name"
+                          value={editData.name}
+                          onChange={handleChange}
+                          placeholder="Enter your full name"
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaEnvelope className="text-gray-400" />
+                        </div>
+                        <input
+                          type="email"
+                          name="email"
+                          value={editData.email}
+                          onChange={handleChange}
+                          placeholder="Enter your email address"
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaPhone className="text-gray-400" />
+                        </div>
+                        <input
+                          type="text"
+                          name="phone_number"
+                          value={editData.phone_number}
+                          onChange={handleChange}
+                          placeholder="Enter your phone number"
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Address
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaMapMarkerAlt className="text-gray-400" />
+                        </div>
+                        <input
+                          type="text"
+                          name="address"
+                          value={editData.address}
+                          onChange={handleChange}
+                          placeholder="Enter your address"
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="mt-8 flex justify-end gap-4">
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-8 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300 flex items-center gap-2 font-semibold border-2 border-gray-300"
+                    >
+                      <FaTimes />
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2 font-semibold"
+                    >
+                      <FaSave />
+                      Save Changes
+                    </button>
+                  </div>
+                </>
               )}
             </div>
-          </>
-        ) : (
-          <>
-            {/* Edit Mode */}
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Edit Your Information
-            </h3>
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your full name"
-                  className="w-full border-gray-300 rounded-lg bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={editData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email address"
-                  className="w-full border-gray-300 rounded-lg bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  name="phone_number"
-                  value={editData.phone_number}
-                  onChange={handleChange}
-                  placeholder="Enter your phone number"
-                  className="w-full border-gray-300 rounded-lg bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={editData.address}
-                  onChange={handleChange}
-                  placeholder="Enter your address"
-                  className="w-full border-gray-300 rounded-lg bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
+          </div>
+        </div>
 
-            {/* Action Buttons */}
-            <div className="mt-8 flex justify-end space-x-4">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center"
-              >
-                <FaTimes className="mr-2" />
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center"
-              >
-                <FaSave className="mr-2" />
-                Save Changes
-              </button>
-            </div>
-          </>
+        {/* User Reviews Section */}
+        {userId && role !== "admin" && (
+          <div className="mt-6">
+            <UserReviews userId={userId} />
+          </div>
         )}
       </div>
-
-      {/* User Reviews Section */}
-      {userId && role!=="admin" && <UserReviews userId={userId} />}
     </div>
   );
 }

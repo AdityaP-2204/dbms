@@ -1,27 +1,16 @@
 // Wishlist.tsx
-import { useLocation, useNavigate } from "react-router-dom";
 import WishlistItem from "./wishlistItem";
-import { use, useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosConfig";
 import { useAuth } from "../hooks/useAuth";
-
-// interface Variant {
-//   id: string;
-//   attempt: string;
-//   price: number;
-//   variant_image: string;
-//   delivery_mode: string;
-//   availability: boolean;
-//   validity: string;
-//   product_id: string;
-// }
+import { FaHeart } from "react-icons/fa";
 
 export interface WishlistItemProps {
   id: string;
   user_id: string;
   variant_id: string;
   added_at: string;
+  onRemove?: (id: string) => void;
 }
 
 export default function Wishlist() {
@@ -52,32 +41,71 @@ export default function Wishlist() {
     fetchWishlist();
   }, [userId]);
 
-  // const location = useLocation();
-  // const navigate = useNavigate();
-
-  // const product = location.state?.product;
-  // const variant: Variant | null = location.state?.variant || null;
-
   return (
-    <div className="max-w-4xl mx-auto pt-28 px-6 pb-16">
-      <h2 className="text-3xl font-extrabold text-gray-900 mb-6">Your Wishlist</h2>
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+      {/* Header Section */}
+      <div className="max-w-6xl mx-auto px-4 mb-8">
+        <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-8 shadow-lg">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <FaHeart className="text-white text-3xl" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-white">
+                My Wishlist
+              </h1>
+              <p className="text-pink-100 mt-1">
+                Save your favorite courses for later
+              </p>
+            </div>
+          </div>
+          
+          {/* Stats */}
+          <div className="flex items-center gap-6 mt-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
+              <div className="flex items-center gap-3">
+                <FaHeart className="text-white text-xl" />
+                <div>
+                  <p className="text-white text-2xl font-bold">{wishlistItems.length}</p>
+                  <p className="text-pink-100 text-sm">Saved Items</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {wishlistItems.length === 0 ? (
-        <p className="text-gray-600">Your wishlist is empty.</p>
-      ) : (
-        wishlistItems.map((item) => (
-          <WishlistItem key={item.id} id={item.id} user_id={item.user_id} variant_id={item.variant_id} added_at={item.added_at} />
-        ))
-      )}
-
-      {/* <div className="mt-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="px-5 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-        >
-          ← Back
-        </button>
-      </div> */}
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4">
+        {wishlistItems.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-16 text-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaHeart className="text-pink-500 text-4xl" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Your Wishlist is Empty</h3>
+            <p className="text-gray-600 mb-6">Start adding courses you love to your wishlist!</p>
+            <button
+              onClick={() => window.location.href = "/products"}
+              className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
+              Browse Courses
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {wishlistItems.map((item) => (
+              <WishlistItem 
+                key={item.id} 
+                id={item.id} 
+                user_id={item.user_id} 
+                variant_id={item.variant_id} 
+                added_at={item.added_at}
+                onRemove={(id) => setWishlistItems(prev => prev.filter(i => i.id !== id))}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
