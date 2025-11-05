@@ -45,7 +45,7 @@ export default function Wishlist() {
     <div className="min-h-screen bg-gray-50 pt-24 pb-12">
       {/* Header Section */}
       <div className="max-w-6xl mx-auto px-4 mb-8">
-        <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-8 shadow-lg">
+        <div className="bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl p-8 shadow-lg">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
               <FaHeart className="text-white text-3xl" />

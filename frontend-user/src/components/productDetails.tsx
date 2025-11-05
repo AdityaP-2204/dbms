@@ -89,6 +89,9 @@ export default function ProductDetails() {
   // Toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Tooltip state
+  const [hoveredFaculty, setHoveredFaculty] = useState<string | null>(null);
+
   // fetch product (extracted so we can call it after updates)
   const fetchProduct = async () => {
     try {
@@ -603,12 +606,74 @@ export default function ProductDetails() {
             {product.faculties.length > 0 && (
               <div>
                 <h4 className="font-bold text-gray-800 text-lg mb-2">Faculty</h4>
-                <ul className="list-inside text-gray-600 space-y-1">
+                <ul className="list-inside text-gray-600 space-y-2">
                   {product.faculties.map((f, idx) => (
-                    <li key={f.id || idx}>
-                      <span className="text-sm">
-                        • {f.name} - <span className="text-gray-500 text-xs">{f.description}</span>
+                    <li 
+                      key={f.id || idx}
+                      className="relative"
+                      onMouseEnter={() => setHoveredFaculty(f.id)}
+                      onMouseLeave={() => setHoveredFaculty(null)}
+                    >
+                      <span className="text-sm cursor-pointer hover:text-blue-600 transition-colors">
+                        • {f.name}
                       </span>
+
+                      {/* Tooltip */}
+                      {hoveredFaculty === f.id && (
+                        <div className="absolute left-0 top-full mt-2 z-50 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl p-4 animate-fadeIn">
+                          {/* Arrow */}
+                          <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+                          
+                          {/* Content */}
+                          <div className="relative space-y-3">
+                            {/* Header with Profile Image */}
+                            <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                              {f.profile_image ? (
+                                <img 
+                                  src={f.profile_image} 
+                                  alt={f.name}
+                                  className="w-12 h-12 rounded-full object-cover border-2 border-blue-100"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                                  {f.name.charAt(0)}
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <h5 className="font-bold text-gray-900 text-base">{f.name}</h5>
+                                {f.institute_name && (
+                                  <p className="text-xs text-gray-500 mt-0.5">{f.institute_name}</p>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Description */}
+                            {f.description && (
+                              <div>
+                                <p className="text-sm text-gray-700 leading-relaxed">
+                                  {f.description}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Email */}
+                            {f.email && (
+                              <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <a 
+                                  href={`mailto:${f.email}`}
+                                  className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {f.email}
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
