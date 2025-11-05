@@ -77,7 +77,7 @@ export default function CartItem({ item: {
           <div className="flex-shrink-0">
             <div className="relative group">
               <img
-                src={product.product_image}
+                src={variant.variant_image}
                 alt={product.product_title}
                 className="w-full md:w-40 h-40 object-cover rounded-xl shadow-md group-hover:shadow-xl transition-shadow duration-300"
               />
