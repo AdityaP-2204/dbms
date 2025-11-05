@@ -24,7 +24,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public int addTransaction(@RequestBody Transaction transaction) {
+    public UUID addTransaction(@RequestBody Transaction transaction) {
         return transactionService.addTransaction(transaction);
     }
 

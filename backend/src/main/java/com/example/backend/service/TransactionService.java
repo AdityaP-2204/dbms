@@ -19,7 +19,7 @@ public class TransactionService {
         this.transactionDao = transactionDao;
     }
 
-    public int addTransaction(Transaction transaction) {
+    public UUID addTransaction(Transaction transaction) {
         return transactionDao.addTransaction(transaction);
     }
 

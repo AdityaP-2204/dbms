@@ -17,7 +17,6 @@ import {
   FaPercent,
   FaGift,
 } from "react-icons/fa";
-import axios from "axios";
 
 export interface CartItemProps {
   id: string;
@@ -27,22 +26,15 @@ export interface CartItemProps {
   quantity: number;
 }
 
-
 export default function Cart() {
-  // const location = useLocation();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItemProps[]>([]);
-
-  // const product = location.state?.product;
-  // const variant: Variant | null = location.state?.variant || null;
-
   const [couponCode, setCouponCode] = useState("");
   const [couponResult, setCouponResult] = useState<CouponValidationResult | null>(null);
   const [isApplying, setIsApplying] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [discount, setDiscount] = useState<number>(0);
-  // const cartTotal = variant ? variant.price : 0;
 
   const user = useAuth();
   const [userId, setUserId] = useState<string | null>(null);
@@ -90,19 +82,16 @@ export default function Cart() {
     setDiscount(0);
   };
 
-  // const displayTotal = couponResult?.valid ? couponResult.finalTotal : cartTotal;
-  // const discount = couponResult?.valid ? couponResult.discount : 0;
   async function fetchCartItems() {
     if (!userId) return;
     const res = await axiosInstance.get(`http://localhost:8080/api/cart?userId=${userId}`);
     const data = res.data;
 
     setCartItems(data);
-
   }
   useEffect(() => {
     fetchCartItems();
-  }, [userId])
+  }, [userId]);
 
   useEffect(() => {
     // Calculate cart total
@@ -120,8 +109,8 @@ export default function Cart() {
       setCartTotal(total);
     };
     const calcDisc = async () => {
-        if (!appliedCoupon) return;
-        try {
+      if (!appliedCoupon) return;
+      try {
         const result = await validateCoupon(couponCode, cartTotal);
         setCouponResult(result);
         if (result.valid) {
@@ -144,21 +133,72 @@ export default function Cart() {
   }, [cartItems]);
 
   async function handleCheckout() {
-      const response=await axiosInstance.post("http://localhost:8080/api/checkout",{
-          userId:userId,
-          email:user?.email,
-          name:user?.name,
-          couponCode: appliedCoupon,
-          items: cartItems,
-          totalAmount: cartTotal,
-          discount: discount
-      });
-      if(response.status===200){
-        alert("Checkout successful!");
-        navigate("/transactions");
-      }else{
-        alert("Checkout failed. Please try again.");
+    try {
+      
+      // Get coupon ID if a coupon is applied
+      let couponId = null;
+      if (appliedCoupon) {
+        
+        try {
+          const couponResponse = await axiosInstance.get(`http://localhost:8080/api/coupon?code=${appliedCoupon}`);
+          couponId = couponResponse.data.id;
+        } catch (error) {
+          console.error("Error fetching coupon ID:", error);
+        }
       }
+
+      // 1. Create transaction
+      const createTransactionResponse = await axiosInstance.post("http://localhost:8080/api/transaction", {
+        user_id: userId,
+        total_amount: cartTotal - discount,
+        coupon_id: couponId,
+        payment_status: "PENDING"
+        // Backend will generate transaction_id and transaction_date
+      });
+
+      if (createTransactionResponse.status === 200) {
+        const transactionId = createTransactionResponse.data;
+
+        // 2. Create order items
+        const orderItemsPromises = cartItems.map(async (item) => {
+          const variantRes = await axiosInstance.get(`http://localhost:8080/api/variant?id=${item.variant_id}`);
+          const variantData = variantRes.data;
+          // console.log(transactionId,item.variant_id, "hello yogesh")
+          return axiosInstance.post("http://localhost:8080/api/orders", {
+            user_id: userId,
+            variant_id: item.variant_id,
+            quantity: item.quantity,
+            price: variantData.price,
+            transaction_id: transactionId
+            // Backend will generate order_item_id and order_date
+          });
+        });
+        
+        await Promise.all(orderItemsPromises);
+        
+        // 3. Clear cart items one by one
+        const clearCartPromises = cartItems.map(item => 
+          axiosInstance.delete(`http://localhost:8080/api/cart?id=${item.id}`)
+        );
+        await Promise.all(clearCartPromises);
+        
+        // 4. Update local state
+        setCartItems([]);
+        setCouponCode("");
+        setCouponResult(null);
+        setAppliedCoupon(null);
+        setDiscount(0);
+        setCartTotal(0);
+
+        alert("Order placed successfully!");
+        navigate("/transactions");
+      } else {
+        throw new Error("Failed to create transaction");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Checkout failed. Please try again.");
+    }
   }
 
   return (
@@ -310,7 +350,7 @@ export default function Cart() {
                     </div>
 
                     {discount > 0 && (
-                      <>
+                      <div>
                         <div className="flex justify-between items-center py-2 text-green-600">
                           <span className="font-medium flex items-center gap-2">
                             <FaTag /> Coupon Discount
@@ -322,7 +362,7 @@ export default function Cart() {
                             🎉 You saved ₹{discount.toFixed(2)}!
                           </p>
                         </div>
-                      </>
+                      </div>
                     )}
 
                     <div className="border-t-2 border-gray-200 pt-3 mt-3">

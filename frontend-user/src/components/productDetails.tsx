@@ -98,7 +98,7 @@ export default function ProductDetails() {
       const resp = await axiosInstance.get(`http://localhost:8080/api/joinedProduct?id=${id}`);
       setProduct(resp.data);
       // set default selected variant to first
-      if (resp.data?.variants?.length) {
+      if (resp.data?.variants?.length && userId) {
         setSelectedVariant(resp.data.variants[0]);
         const res = await axiosInstance.get(`http://localhost:8080/api/wishlist?userId=${userId}&variantId=${resp.data.variants[0].id}`);
         if(res.data.id){
@@ -132,7 +132,7 @@ export default function ProductDetails() {
 
   useEffect(() => {
     fetchProduct();
-  }, []);
+  }, [userId]);
 
   // load master lists only for admin (or you can load always if preferred)
   useEffect(() => {
@@ -499,6 +499,7 @@ export default function ProductDetails() {
                         checked={selectedVariant?.id === variant.id}
                         onChange={async () =>{ 
                           setSelectedVariant(variant)
+                          if(!userId) return;
                           const res = await axiosInstance.get(`http://localhost:8080/api/wishlist?userId=${userId}&variantId=${variant.id}`);
                           if(res.data.id){
                             setSelectedVariantAddedToWishlist(true);
