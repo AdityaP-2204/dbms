@@ -213,7 +213,7 @@ export default function LandingPage() {
             </button>
 
             <button
-              onClick={() => navigate("/courses")}
+              onClick={() => window.open('https://youtu.be/nmiU190s5GI?si=vlb9kt3zjuITINoJ&t=4', '_blank')}
               className="px-8 py-4 bg-white text-gray-800 text-lg font-bold rounded-full border-2 border-gray-300 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-3"
             >
               <FaPlay className="text-blue-600" />
