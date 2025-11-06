@@ -172,6 +172,7 @@ export default function Cart() {
             transaction_id: transactionId
             // Backend will generate order_item_id and order_date
           });
+
         });
         
         await Promise.all(orderItemsPromises);
@@ -181,6 +182,15 @@ export default function Cart() {
           axiosInstance.delete(`http://localhost:8080/api/cart?id=${item.id}`)
         );
         await Promise.all(clearCartPromises);
+        await axiosInstance.post("http://localhost:8080/api/checkout", {
+            userId: userId,
+            name: user?.name,
+            email: user?.email,
+            totalAmount: cartTotal - discount,
+            discount: discount,
+            couponCode: appliedCoupon,
+            items: cartItems
+      });
         
         // 4. Update local state
         setCartItems([]);
