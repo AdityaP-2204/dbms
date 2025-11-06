@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +28,8 @@ public class TransactionDataAccessService implements TransactionDao {
                 transaction.getTotal_amount(),
                 transaction.getcoupon_id(),
                 transaction.getPayment_status().name(),
-                transaction.getTransaction_date()
+                Timestamp.valueOf(LocalDateTime.now())
+                
         );
         return id;
     }
