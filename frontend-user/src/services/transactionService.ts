@@ -125,3 +125,8 @@ export const getUserById = async (userId: string): Promise<User> => {
     throw error;
   }
 };
+
+export const updateTransactionStatus = async (transactionId: string, status: string) => {
+  const response = await axiosInstance.put(`${API_BASE_URL}/transaction/${transactionId}/status`, { status });
+  return response.data;
+};

@@ -3,10 +3,13 @@ package com.example.backend.api;
 import com.example.backend.model.Transaction;
 import com.example.backend.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping("/api/transaction")
@@ -52,5 +55,23 @@ public class TransactionController {
     public List<Transaction> getTransactionsBetweenDates(@RequestParam Timestamp startDate,
                                                          @RequestParam Timestamp endDate) {
         return transactionService.getTransactionsBetweenDates(startDate, endDate);
+    }
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> updateTransactionStatus(@PathVariable("id") UUID transactionId, @RequestBody Map<String, String> payload) {
+        try {
+            String status = payload.get("status");
+            Transaction.PaymentStatus paymentStatus = Transaction.PaymentStatus.valueOf(status);
+            int result = transactionService.updateTransactionStatus(transactionId, paymentStatus);
+            
+            if (result > 0) {
+                return ResponseEntity.ok("Transaction status updated successfully");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid payment status");
+        }
     }
 }

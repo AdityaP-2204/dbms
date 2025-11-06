@@ -7,6 +7,7 @@ import {
   getVariantById,
   getProductById,
   getUserById,
+  updateTransactionStatus,
   type Transaction,
   type OrderItem,
   type Variant,
@@ -14,9 +15,6 @@ import {
 } from "../services/transactionService";
 import {
   FaShoppingBag,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaClock,
   FaChevronDown,
   FaChevronUp,
   FaCalendarAlt,
@@ -41,6 +39,7 @@ export default function AdminTransactions() {
   const [expandedTransaction, setExpandedTransaction] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState<string | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   // ✅ Redirect if not admin
   useEffect(() => {
@@ -125,20 +124,25 @@ export default function AdminTransactions() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "SUCCESSFUL":
-        return <FaCheckCircle className="text-green-500" size={20} />;
-      case "FAILED":
-        return <FaTimesCircle className="text-red-500" size={20} />;
-      case "PENDING":
-        return <FaClock className="text-yellow-500" size={20} />;
-      default:
-        return null;
+  const handleStatusUpdate = async (transactionId: string, newStatus: "PENDING" | "SUCCESSFUL" | "FAILED") => {
+    try {
+      setUpdatingStatus(transactionId);
+      await updateTransactionStatus(transactionId, newStatus);
+      
+      // Update local state
+      setTransactions(transactions.map(t => 
+        t.transaction_id === transactionId 
+          ? { ...t, payment_status: newStatus as Transaction["payment_status"] }
+          : t
+      ));
+    } catch (error) {
+      console.error("Error updating transaction status:", error);
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: Transaction["payment_status"]) => {
     switch (status) {
       case "SUCCESSFUL":
         return "bg-green-100 text-green-800 border-green-200";
@@ -238,14 +242,25 @@ export default function AdminTransactions() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium border flex items-center gap-2 ${getStatusColor(
-                        transaction.payment_status
-                      )}`}
-                    >
-                      {getStatusIcon(transaction.payment_status)}
-                      {transaction.payment_status}
-                    </span>
+                    <div className="relative">
+                      {updatingStatus === transaction.transaction_id ? (
+                        <div className="flex items-center justify-center w-full h-full">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+                        </div>
+                      ) : (
+                        <select
+                          value={transaction.payment_status}
+                          onChange={(e) => handleStatusUpdate(transaction.transaction_id, e.target.value as "PENDING" | "SUCCESSFUL" | "FAILED")}
+                          className={`px-3 py-1 rounded-full text-sm font-medium border appearance-none cursor-pointer ${getStatusColor(
+                            transaction.payment_status
+                          )}`}
+                        >
+                          <option value="PENDING">PENDING</option>
+                          <option value="SUCCESSFUL">SUCCESSFUL</option>
+                          <option value="FAILED">FAILED</option>
+                        </select>
+                      )}
+                    </div>
 
                     {expandedTransaction === transaction.transaction_id ? (
                       <FaChevronUp className="text-gray-400" />
