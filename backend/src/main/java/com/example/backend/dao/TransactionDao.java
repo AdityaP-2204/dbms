@@ -19,4 +19,5 @@ public interface TransactionDao {
     List<Transaction> getTransactionsByStatus(Transaction.PaymentStatus status);
     List<Transaction> getTransactionsByDate(Timestamp date);
     List<Transaction> getTransactionsBetweenDates(Timestamp startDate, Timestamp endDate);
+    int updateTransactionStatus(UUID transactionId, Transaction.PaymentStatus status);
 }

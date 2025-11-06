@@ -42,4 +42,8 @@ public class TransactionService {
     public List<Transaction> getTransactionsBetweenDates(Timestamp startDate, Timestamp endDate) {
         return transactionDao.getTransactionsBetweenDates(startDate, endDate);
     }
+
+    public int updateTransactionStatus(UUID transactionId, Transaction.PaymentStatus status) {
+        return transactionDao.updateTransactionStatus(transactionId, status);
+    }
 }

@@ -98,4 +98,10 @@ public class TransactionDataAccessService implements TransactionDao {
                 rs.getTimestamp("transaction_date")
         ));
     }
+
+    @Override
+    public int updateTransactionStatus(UUID transactionId, Transaction.PaymentStatus status) {
+        String sql = "UPDATE transactions SET payment_status = ? WHERE transaction_id = ?";
+        return jdbcTemplate.update(sql, status.name(), transactionId);
+    }
 }
