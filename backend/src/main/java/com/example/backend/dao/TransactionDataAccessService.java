@@ -19,9 +19,9 @@ public class TransactionDataAccessService implements TransactionDao {
     }
 
     @Override
-    public int addTransaction(UUID id, Transaction transaction) {
+    public UUID addTransaction(UUID id, Transaction transaction) {
         final String sql = "INSERT INTO transactions (transaction_id, user_id, total_amount, coupon_id, payment_status, transaction_date) VALUES (?,?,?,?,?,?)";
-        return jdbcTemplate.update(sql,
+         jdbcTemplate.update(sql,
                 id,
                 transaction.getUser_id(),
                 transaction.getTotal_amount(),
@@ -29,6 +29,7 @@ public class TransactionDataAccessService implements TransactionDao {
                 transaction.getPayment_status().name(),
                 transaction.getTransaction_date()
         );
+        return id;
     }
 
     @Override

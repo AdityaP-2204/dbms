@@ -21,14 +21,13 @@ public class OrdersDataAccessService implements OrdersDao {
 
     @Override
     public int addOrder(UUID id, Orders order) {
-        final String sql = "INSERT INTO orders_item (order_item_id, user_id, variant_id, quantity, price, order_date, transaction_id) VALUES (?,?,?,?,?,?,?)";
+        final String sql = "INSERT INTO orders_item (order_item_id, user_id, variant_id, quantity, price, transaction_id) VALUES (?,?,?,?,?,?)";
         return jdbcTemplate.update(sql,
                 id,
                 order.getUser_id(),
                 order.getVariant_id(),
                 order.getQuantity(),
                 order.getPrice(),
-                order.getOrder_date(),
                 order.getTransaction_id()
         );
     }
